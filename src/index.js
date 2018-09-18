@@ -1,6 +1,6 @@
 
 // Set process name
-process.title = ['']; // TO-DO: change to your process real name.
+process.title = ['smart-trader-ws'];
 
 import server from 'server';
 server.start();

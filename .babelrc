@@ -20,7 +20,8 @@
                     "utils": "./src/utils",
                     "server": "./src/server",
                     "db": "./src/dal",
-                    "logger": "./src/utils/logger"
+                    "logger": "./src/utils/logger",
+                    "eventQueue": "./src/utils/eventQueue"
                 }
             }
         ]

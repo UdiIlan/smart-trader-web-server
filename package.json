@@ -4,7 +4,7 @@
   "description": "Node.js project-template for the smart-trader team.",
   "main": "lib/index.js",
   "scripts": {
-    "start": "nodemon --inspect  ./src/index.js --exec babel-node",
+    "start": "nodemon --inspect=9229  ./src/index.js --exec babel-node",
     "build": "babel src -d lib",
     "run:prod": "node .",
     "test": "nyc --temp-directory coverage --reporter=html --reporter=text --exclude '**/*.spec.js' mocha --require babel-register  ./src/**/*.spec.js --require babel-core/register --coverage",
@@ -45,6 +45,10 @@
     "node": ">= 8.0.0"
   },
   "dependencies": {
+    "express": "^4.16.3",
+    "kafka-node": "^3.0.1",
+    "osprey": "^0.5.0",
+    "uuid": "^3.3.2",
     "winston": "^3.0.0"
   }
 }
