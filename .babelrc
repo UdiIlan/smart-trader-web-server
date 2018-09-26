@@ -21,7 +21,8 @@
                     "server": "./src/server",
                     "db": "./src/dal",
                     "logger": "./src/utils/logger",
-                    "eventQueue": "./src/utils/eventQueue"
+                    "eventQueue": "./src/utils/eventQueue",
+                    "notifications" : "./src/utils/notifications"
                 }
             }
         ]

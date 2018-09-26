@@ -17,6 +17,9 @@
             "eventQueue": [
                 "./src/utils/eventQueue"
             ],
+            "notifications" : [
+                "./src/utils/notifications"
+            ]
         }
     },
     "exclude": [
