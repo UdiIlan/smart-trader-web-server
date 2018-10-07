@@ -1,5 +1,6 @@
 import logger from 'logger';
 import { NotificationsString }  from  './notifications';
+import moment from 'moment';
 
 const kafka = require('kafka-node');
 const Producer = kafka.Producer;
@@ -15,7 +16,7 @@ let PARTITION = 0;
 
 class EventQueue {
   constructor() {
-    //  order  producer initilization
+    //  order  producer initialization
     this.client = new kafka.Client(URL + ':' + PORT);
     this.producer = new Producer(this.client);
 
@@ -43,7 +44,7 @@ class EventQueue {
     });
 
     this.consumer.on('error', function (err) {
-      logger.error('Kafka expericanced an error - ' + err);
+      logger.error('Kafka experienced an error - ' + err);
     });
 
     this.consumer.on('offsetOutOfRange', function (topic) {
@@ -59,6 +60,7 @@ class EventQueue {
   }
 
   sendRequest(requestType, parameters) {
+    parameters['eventTimeStamp'] = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     let keyedMessage = new KeyedMessage(requestType, JSON.stringify(parameters));
 
     this.producer.send([{ topic: ORDERS_TOPIC, partition: PARTITION, messages: [keyedMessage] }], function (err, result) {
@@ -72,6 +74,7 @@ class EventQueue {
   }
 
   sendNotification(notificationType, parameters) {
+    parameters['eventTimeStamp'] = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     let keyedMessage = new KeyedMessage(notificationType, JSON.stringify(parameters));
 
     this.producer.send([{ topic: NOTIFICATIONS_TOPIC, partition: PARTITION, messages: [keyedMessage] }], function (err, result) {
