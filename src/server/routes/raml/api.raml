@@ -11,8 +11,8 @@ securitySchemes:
 types: 
   ReportFilter: !include types/report_filter.raml
   Order: !include types/order.raml
-  OrderStatus: !include types/order_status.raml
   ExchangeCredentials: !include types/exchange_credentials.raml
+  OrderStatus: !include types/orders_status.raml
   SentOrder: !include types/sent_order.raml
   AccountStatus: !include types/account_status.raml
   AccountBalance: !include types/account_balance.raml
@@ -20,6 +20,7 @@ types:
 
 /accounts: 
   post:
+    securedBy: []
     description: Create a new account
     body:
       application/json:
@@ -28,23 +29,7 @@ types:
           name: string
           description?: string
           exchangeCredentials: ExchangeCredentials[]
-          publicKey: 
-            type: string
-            description: Public key for the account's admin user
-    responses:
-      200:
-        body: 
-          type: AccountStatus
-  put:
-    description: Update existing account details
-    body:
-      application/json:
-        type: object
-        properties: 
-          name: string
-          description?: string
-          exchangeCredentials?: ExchangeCredentials[]
-          publicKey?: 
+          accountUserPublicKey: 
             type: string
             description: Public key for the account's admin user
     responses:
@@ -52,8 +37,35 @@ types:
         body: 
           type: AccountStatus
 
+
   /{accountName}:
+    put:
+      description: Update existing account details
+      body:
+        application/json:
+          type: object
+          properties:
+            name?: string
+            description?: string
+            exchangeCredentials?: ExchangeCredentials[]
+      responses:
+        200:
+          body: 
+            type: AccountStatus
+
     /users:
+      get:
+        description: gets the list of all of the users in the account
+        responses:
+            200:
+              body:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    name: string
+                    description?: string
+                
       post:
         description: Create a new user for an account
         body:
@@ -99,106 +111,138 @@ types:
         responses:
           200:
             body:
-              type: AccountBalance
-              example:
-                {
-                  "totalBalance": 
+              type: object
+              properties:
+                accountBalance:
+                  type: AccountBalance
+              examples:
+                - accountBalance:
                     {
-                      "USD": {"amount": 1600, "available": 1500 },
-                      "BTC": { "amount": 0.7, "available": 0.5 }
+                      "totalBalance":
+                      {
+                        "USD": 1600,
+                        "BTC": 0.7
+                      }
                     }
+                - accountBalance:
+                    {
+                      "totalBalance": 
+                      {
+                        "USD": 1600,
+                        "BTC": 0.7
+                      },
+                      "exchangesBalance":
+                      {
+                        "Bitstamp":
+                        {
+                          "USD": 1400,
+                          "BTC": 0.3
+                        },
+                        "Kraken":
+                        {
+                          "USD": 200,
+                          "BTC": 0.4
+                        }
+                      }
+                    }                
+
+/funding:    
+  /deposits:
+    post:
+      description: Request for a new deposit of assets to Smart-Trader account.
+      body:
+        application/json:
+          type: object
+          properties: 
+            assetType: string
+      responses:
+        200:
+          body:
+            type: object
+            properties:
+              walletAddress : string
+            example:
+              {
+                "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s"
+              }
+
+    get:       
+      description: List all account deposit resquest history.
+      queryParameters:
+        limit?:
+          description: Limits the number of deposit that will be returned.
+          type: number
+      responses:
+        200:
+          body:
+            type: array
+            items:
+              type: object
+              properties:
+                time: datetime
+                assetType: string
+                walletAddress : string
+                account: string
+                userId: string
+            example:
+              [
+                  {
+                    "time": 2018-10-10 10:05:13.384,
+                    "assetType": "BTC",
+                    "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s",
+                    "account": "BTC.com",
+                    "userId": "bob"
+                  },
+                  {
+                    "time": 2018-07-11 23:42:21.958,
+                    "assetType": "ETH",
+                    "walletAddress": "0x301DF4cC1049982D8c289d9134Cd302678946Dd8"
+                    "account": "BTC.com",
+                    "userId": "alice"
+                  }
+              ]
+
+  /withdraws:
+    post:
+      description: Request to withdraw annount of asset from Smart-Trader account.
+      body:
+        application/json:
+          type: object
+          properties: 
+            amount: number
+      responses:
+        200:
+          body:
+            type: object
+            properties:
+              transactionID : string
+            example:
+                {
+                  "transactionID": "FDSGDFHT15DS"
                 }
 
-      /deposits:
-        post:
-          description: Request for a new deposit of assets to Smart-Trader account.
+    get:       
+      description: Returns a specific withdraw transaction status.
+      queryParameters:
+        transactionID:
+          description: withdraw transaction ID.
+          type: string
+      responses:
+        200:
           body:
-            application/json:
-              type: object
-              properties: 
-                token: string
-          responses:
-            200:
-              body:
-                type: object
-                properties:
-                  walletAddress : string
-                example:
-                  {
-                    "walletAddress": "1BoatSLRHtKNngkdXEeobR76b53LETtpyT"
-                  }
-
-        get:       
-          description: List all account deposit resquest history.
-          queryParameters:
-            limit?:
-              description: Limits the number of deposit that will be returned.
-              type: number
-          responses:
-            200:
-              body:
-                type: array
-                items:
-                  type: object
-                  properties:
-                    time: datetime
-                    token: string
-                    walletAddress : string
-                example:
-                  [
-                      {
-                        "time": 2018-10-10 10:05:13.384,
-                        "token": "fdsafsa",
-                        "walletAddress": "1BoatSLRHtKNngkdXEeobR76b53LETtpyT"
-                      },
-                      {
-                        "time": 2018-07-11 23:42:21.958,
-                        "token": "fdsafsa",
-                        "walletAddress": "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy"
-                      }
-                  ]
-
-      /withdrawals:
-        post:
-          description: Request to withdrawal annount of asset from Smart-Trader account.
-          body:
-            application/json:
-              type: object
-              properties: 
-                amount: number
-          responses:
-            200:
-              body:
-                type: object
-                properties:
-                  transactionID : string
-                example:
-                    {
-                      "transactionID": "FDSGDFHT15DS"
-                    }
-
-        get:       
-          description: Returns a specific withdrawal transaction status.
-          queryParameters:
-            transactionID:
-              description: Withdrawal transaction ID.
-              type: string
-          responses:
-            200:
-              body:
-                type: object
-                properties:
-                  requestTime: datetime
-                  amount: number
-                  status:
-                    enum: [Success, Failed, In-Progress]
-                example:
-                    {
-                      "requestTime": 2018-10-10 10:05:13.384,
-                      "amount": 1500,
-                      "status": "In-Progress"
-                    }
-                  
+            type: object
+            properties:
+              requestTime: datetime
+              amount: number
+              status:
+                enum: [Success, Failed, In-Progress]
+            example:
+                {
+                  "requestTime": 2018-10-10 10:05:13.384,
+                  "amount": 1500,
+                  "status": "In-Progress"
+                }
+                
 
 /trade:
   post:
@@ -208,17 +252,39 @@ types:
         type: Order
         example: 
           { 
-            "actionType": "buy",
-            "size": 0.1,
-            "assetPair": "BTC-EUR",
-            "floorPrice": 6500
+            "actionType": "sell",
+            "size": 1001,
+            "assetPair": "BTC-USD",
+            "price": 6500,
+            "durationMin": 600
           }
     responses:
       200:
         body:
           application/json:
-            type: OrderStatus
+            type: object
+            properties: 
+              tradeOrderId: string
+            example:
+              {
+                "tradeOrderId": "ABC2D"
+              }
   get:
+    queryParameters:
+          transactionID:
+            description: withdraw transaction ID.
+            type: string
+    responses:
+      200:
+        body:
+          application/json:
+            type: OrderStatus
+            example:
+              {
+                "status": "Done",
+                "executionSize": 1001,
+                "tradeOrderId": "ABC2D"
+              }
 
 /reports:
   description: Smart-Trader reports APIs
@@ -253,11 +319,11 @@ types:
                     "status": "Finished",
                     "orderTime": 2018-10-10 10:05:13.384,
                     "timedOrder": false,
-                    "assetPair": "BTC-EUR",
+                    "assetPair": "BTC-USD",
                     "currencyFromAvailable": 3522.28410189,
                     "currencyToAvailable": 0.10772093,
-                    "ask": 0.0,
-                    "bid": 0.0,
+                    "ask": 6501,
+                    "bid": 6499,
                     "userId": "ABC",
                     "tradeOrderId": "850"
                   }

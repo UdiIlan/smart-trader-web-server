@@ -3,7 +3,9 @@
 type: object
 displayName: OrderStatus
 properties: 
-  orderStatus: boolean
+  status:
+    enum: ["Failed", "Done", "In-Progress"]
   executionSize: number
-  executionMessage: string
+  executionMessage?: string
   tradeOrderId: string
+
