@@ -5,7 +5,7 @@ import logger from 'logger';
 import osprey from 'osprey';
 import uuidv4 from 'uuid/v4';
 import { orderTypes, orderTypesStr } from './orderTypes';
-import { Notifications } from '../../utils/notifications';
+import { Notifications } from 'notifications';
 import { exchangeIds } from '../../utils/exchangeIds';
 
 

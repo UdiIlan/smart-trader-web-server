@@ -22,7 +22,8 @@
                     "db": "./src/dal",
                     "logger": "./src/utils/logger",
                     "eventQueue": "./src/utils/eventQueue",
-                    "notifications" : "./src/utils/notifications"
+                    "notifications" : "./src/utils/notifications",
+                    "moduleInfo" : "./src/utils/moduleInfo"
                 }
             }
         ]

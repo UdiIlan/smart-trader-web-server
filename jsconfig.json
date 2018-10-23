@@ -19,7 +19,10 @@
             ],
             "notifications" : [
                 "./src/utils/notifications"
-            ]
+            ],
+            "moduleInfo" : [
+                "./src/utils/moduleInfo"
+            ],
         }
     },
     "exclude": [
