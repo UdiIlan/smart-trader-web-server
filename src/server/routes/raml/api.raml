@@ -4,6 +4,10 @@ version: v0.5
 protocols: [HTTP]
 mediaType: application/json
 baseUri: http://smart-trader/{version}/
+securedBy: [passthrough]
+securitySchemes:
+  passthrough: !include passthrough_security_scheme.raml
+
 
 types: 
   ReportFilter: !include report_filter.raml
@@ -16,22 +20,56 @@ types:
   LoginStatus: !include login_status.raml
   SentOrder: !include sent_order.raml
 
-/users: 
+/accounts: 
   post:
-    description: Create a new user
+    is []
+    description: Create a new account
     body:
       application/json:
         type: object
-        required: true
         properties: 
-          userName: string
+          name: string
           description?: string
-          exchangeCredentials?: ExchangeCredentials[]
+          exchangeCredentials: ExchangeCredentials[]
+          publicKey: 
+            type: string
+            description: Public key for the account's admin user
     responses:
       200:
         body:
+          accountStatus
+  /{accountName}:
+    /users:
+      post:
+        description: Create a new user for an account
+        body:
           application/json:
+            type: object
+            properties: 
+              name: string
+              description?: string
+              roles:
+                type: array
+                items:
+                  enum: [Admin, Trade, View]
+              publicKey: string
+          responses:
+            200:
+              body:
+                name: string
+                description?: string
 
+    /balance:
+      get:
+        description: Gets the balance of the account from the exchanges
+        queryParameters:
+          detailed?:
+            description: Sets whether the returned balance is aggregated or detailed per exchange
+            type: boolean
+
+
+
+  
 
       # 200: # HTTP status code
       #   body: # declare content of response
