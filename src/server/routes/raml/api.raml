@@ -1,4 +1,5 @@
 #%RAML 1.0
+---
 title: Smart Trade
 version: v0.5
 protocols: [HTTP]
@@ -6,23 +7,19 @@ mediaType: application/json
 baseUri: http://smart-trader/{version}/
 securedBy: [passthrough]
 securitySchemes:
-  passthrough: !include passthrough_security_scheme.raml
-
-
+  passthrough: !include securitySchemas/passthrough_security_scheme.raml
 types: 
-  ReportFilter: !include report_filter.raml
-  Order: !include order.raml
-  OrderbookOrder: !include orderbook_order.raml
-  OrderStatus: !include order_status.raml
-  ExchangeCredentials: !include exchange_credentials.raml
-  Orderbook: !include orderbook.raml
-  Price: !include price.raml
-  LoginStatus: !include login_status.raml
-  SentOrder: !include sent_order.raml
+  ReportFilter: !include types/report_filter.raml
+  Order: !include types/order.raml
+  OrderStatus: !include types/order_status.raml
+  ExchangeCredentials: !include types/exchange_credentials.raml
+  SentOrder: !include types/sent_order.raml
+  AccountStatus: !include types/account_status.raml
+  AccountBalance: !include types/account_balance.raml
+  User: !include types/user.raml
 
 /accounts: 
   post:
-    is []
     description: Create a new account
     body:
       application/json:
@@ -36,28 +33,61 @@ types:
             description: Public key for the account's admin user
     responses:
       200:
-        body:
-          accountStatus
+        body: 
+          type: AccountStatus
+  put:
+    description: Update existing account details
+    body:
+      application/json:
+        type: object
+        properties: 
+          name: string
+          description?: string
+          exchangeCredentials?: ExchangeCredentials[]
+          publicKey?: 
+            type: string
+            description: Public key for the account's admin user
+    responses:
+      200:
+        body: 
+          type: AccountStatus
+
   /{accountName}:
     /users:
       post:
         description: Create a new user for an account
         body:
           application/json:
-            type: object
-            properties: 
-              name: string
-              description?: string
-              roles:
-                type: array
-                items:
-                  enum: [Admin, Trade, View]
-              publicKey: string
-          responses:
-            200:
-              body:
+            type: User
+        responses:
+          200:
+            body:
+              type: object
+              properties:
                 name: string
                 description?: string
+              example:
+                {
+                  "name": "Bob",
+                  "description": "Bob Rohan - Finances"
+                }
+      put:
+        description: Update an exisitng user details
+        body:
+          application/json:
+            type: User
+        responses:
+          200:
+            body:
+              type: object
+              properties:
+                name: string
+                description?: string
+              example:
+                {
+                  "name": "Bob",
+                  "description": "Bob Rohan - Finances"
+                }
 
     /balance:
       get:
@@ -66,29 +96,172 @@ types:
           detailed?:
             description: Sets whether the returned balance is aggregated or detailed per exchange
             type: boolean
+        responses:
+          200:
+            body:
+              type: AccountBalance
+              example:
+                {
+                  "totalBalance": 
+                    {
+                      "USD": {"amount": 1600, "available": 1500 },
+                      "BTC": { "amount": 0.7, "available": 0.5 }
+                    }
+                }
 
+      /deposits:
+        post:
+          description: Request for a new deposit of assets to Smart-Trader account.
+          body:
+            application/json:
+              type: object
+              properties: 
+                token: string
+          responses:
+            200:
+              body:
+                type: object
+                properties:
+                  walletAddress : string
+                example:
+                  {
+                    "walletAddress": "1BoatSLRHtKNngkdXEeobR76b53LETtpyT"
+                  }
 
+        get:       
+          description: List all account deposit resquest history.
+          queryParameters:
+            limit?:
+              description: Limits the number of deposit that will be returned.
+              type: number
+          responses:
+            200:
+              body:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    time: datetime
+                    token: string
+                    walletAddress : string
+                example:
+                  [
+                      {
+                        "time": 2018-10-10 10:05:13.384,
+                        "token": "fdsafsa",
+                        "walletAddress": "1BoatSLRHtKNngkdXEeobR76b53LETtpyT"
+                      },
+                      {
+                        "time": 2018-07-11 23:42:21.958,
+                        "token": "fdsafsa",
+                        "walletAddress": "3J98t1WpEZ73CNmQviecrnyiWrnqRhWNLy"
+                      }
+                  ]
 
-  
+      /withdrawals:
+        post:
+          description: Request to withdrawal annount of asset from Smart-Trader account.
+          body:
+            application/json:
+              type: object
+              properties: 
+                amount: number
+          responses:
+            200:
+              body:
+                type: object
+                properties:
+                  transactionID : string
+                example:
+                    {
+                      "transactionID": "FDSGDFHT15DS"
+                    }
 
-      # 200: # HTTP status code
-      #   body: # declare content of response
-      #     application/json: # media type
-      #       type: | # structural definition of a response (schema or type)
-      #         {
-      #           "title": "Hello world Response",
-      #           "type": "object",
-      #           "properties": {
-      #             "message": {
-      #               "type": "string"
-      #             }
-      #           }
-      #         }
-      #       example: | # example of how a response looks
-      #         {
-      #           "message": "Hello world"
-      #         }
+        get:       
+          description: Returns a specific withdrawal transaction status.
+          queryParameters:
+            transactionID:
+              description: Withdrawal transaction ID.
+              type: string
+          responses:
+            200:
+              body:
+                type: object
+                properties:
+                  requestTime: datetime
+                  amount: number
+                  status:
+                    enum: [Success, Failed, In-Progress]
+                example:
+                    {
+                      "requestTime": 2018-10-10 10:05:13.384,
+                      "amount": 1500,
+                      "status": "In-Progress"
+                    }
+                  
 
+/trade:
+  post:
+    description: Send an order to be executed on Smart-Trader. When a floorPrice isn't sent the order is executed as a market order.
+    body:
+      application/json:
+        type: Order
+        example: 
+          { 
+            "actionType": "buy",
+            "size": 0.1,
+            "assetPair": "BTC-EUR",
+            "floorPrice": 6500
+          }
+    responses:
+      200:
+        body:
+          application/json:
+            type: OrderStatus
+  get:
+
+/reports:
+  description: Smart-Trader reports APIs
+  /sentOrders:
+    post:
+      description: Generat report on sent transactions data.
+      body:
+        application/json:
+          properties:
+            limit: 
+              description: Limit the resposnse size (default is 1000).
+              type: number
+              required: true
+            filter:
+              description: Report object.
+              required: true
+              type: ReportFilter
+      responses:
+        200:
+          body:
+            application/json:
+              type: SentOrder[]
+              example:
+                [
+                  { 
+                    "account": "BTC.com"
+                    "exchange": "Bitfinex",
+                    "actionType": "buy",
+                    "size": 0.1,
+                    "price": 6581.8,
+                    "exchangeOrderId": "17869737638",
+                    "status": "Finished",
+                    "orderTime": 2018-10-10 10:05:13.384,
+                    "timedOrder": false,
+                    "assetPair": "BTC-EUR",
+                    "currencyFromAvailable": 3522.28410189,
+                    "currencyToAvailable": 0.10772093,
+                    "ask": 0.0,
+                    "bid": 0.0,
+                    "userId": "ABC",
+                    "tradeOrderId": "850"
+                  }
+                ]    
     
 
 
