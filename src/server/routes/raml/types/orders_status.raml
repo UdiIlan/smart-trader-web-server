@@ -3,9 +3,18 @@
 type: object
 displayName: OrderStatus
 properties: 
+  startTime: datetime
+  elapsedTimeMinutes: number
+  assetPair: string
   status:
     enum: ["Failed", "Done", "In-Progress"]
-  executionSize: number
+  requestedSize: number
+  executionSize:
+    type: number
+    description: Size executed so far.
+  executedTargerAmmount:
+    type: number
+    description: The ammount of the target asset executed so far.
   executionMessage?: string
   tradeOrderId: string
 

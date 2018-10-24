@@ -1,0 +1,17 @@
+#%RAML 1.0 SecurityScheme
+description: This API supports Pass Through Authentication.
+type: Pass Through
+describedBy:
+  headers:
+    userId: 
+      type: string
+      description: The user id
+    nonce:
+      description: Nonce is a regular integer number. It must be increased with every request.
+      type: number
+    signature: 
+      description: |
+        Algorithm - hmac sha256<BR>
+        Key - the client secret that is preassigned with userId as a pair<BR>
+        Before sign text - &lt;http method&gt;&&lt;url&gt;&userId=xxx&nonce=xxx&&lt;all key value pairs in body, sorted by key name asc&gt;
+      type: string
