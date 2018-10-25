@@ -1,0 +1,51 @@
+#%RAML 1.0
+---
+
+post:
+  description: Create a new account
+  body:
+    application/json:
+      type: object
+      properties: 
+        name: string
+        description?: string
+        # exchangeCredentials: ExchangeCredentials[]
+  responses:
+    200:
+      body: 
+        type: AccountStatus
+
+
+/{accountName}:
+  put:
+    description: Update existing account details
+    body:
+      application/json:
+        type: object
+        properties:
+          description?: string
+          # exchangeCredentials?: ExchangeCredentials[]
+    responses:
+      200:
+        body: 
+          type: AccountStatus
+
+  /balance:
+    get:
+      description: Gets the balance of the account
+      responses:
+        200:
+          body:
+            type: AccountBalance
+            example:
+                  {
+                    "totalBalance":
+                      {
+                        "USD": 1600,
+                        "BTC": 0.7
+                      }
+                  }            
+
+/funds: !include funds.raml
+/trades: !include trades.raml
+/reports: !include reports.raml

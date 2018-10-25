@@ -1,0 +1,81 @@
+
+#%RAML 1.0
+---
+
+description: Smart-Trader reports APIs
+/sentOrders:
+  post:
+    description: Generat report on sent transactions data.
+    body:
+      application/json:
+        properties:
+          limit: 
+            description: Limit the resposnse size (default is 1000).
+            type: number
+            required: true
+          filter:
+            description: Report object.
+            required: true
+            type: ReportFilter
+    responses:
+      200:
+        body:
+          application/json:
+            type: SentOrder[]
+            example:
+              [
+                { 
+                  "account": "BTC.com"
+                  "exchange": "Bitfinex",
+                  "actionType": "buy",
+                  "size": 0.1,
+                  "price": 8722.8,
+                  "exchangeOrderId": "17869737638",
+                  "status": "Finished",
+                  "orderTime": 2018-10-10 10:05:13.384,
+                  "assetPair": "BTC-USD",
+                  "currencyFromAvailable": 3522.28410189,
+                  "currencyToAvailable": 0.10772093,
+                  "ask": 6501,
+                  "bid": 6499,
+                  "userId": "ABC",
+                  "tradeOrderId": "850"
+                },
+                { 
+                  "account": "BTC.com"
+                  "exchange": "Bitstamp",
+                  "actionType": "buy",
+                  "size": 0.1,
+                  "price": 8556.8,
+                  "exchangeOrderId": "4165469586",
+                  "status": "Finished",
+                  "orderTime": 2018-10-15 10:05:13.384,
+                  "assetPair": "BTC-USD",
+                  "currencyFromAvailable": 3522.28410189,
+                  "currencyToAvailable": 0.10772093,
+                  "ask": 6501,
+                  "bid": 6499,
+                  "userId": "ABC",
+                  "tradeOrderId": "850"
+                },
+                { 
+                  "account": "BTC.com"
+                  "exchange": "Kraken",
+                  "actionType": "buy",
+                  "size": 0.1,
+                  "price": 6581.8,
+                  "exchangeOrderId": "FSDFS6556D",
+                  "status": "Finished",
+                  "orderTime": 2018-11-10 10:05:13.384,
+                  "assetPair": "BTC-USD",
+                  "currencyFromAvailable": 3522.28410189,
+                  "currencyToAvailable": 0.10772093,
+                  "ask": 6501,
+                  "bid": 6499,
+                  "userId": "ABC",
+                  "tradeOrderId": "850"
+                }
+              ]    
+  
+
+
