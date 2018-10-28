@@ -6,7 +6,6 @@ import osprey from 'osprey';
 import uuidv4 from 'uuid/v4';
 import { orderTypes, orderTypesStr } from './orderTypes';
 import { Notifications } from 'notifications';
-import { exchangeIds } from '../../utils/exchangeIds';
 
 
 const DEFAULT_USER_ID = 'defaultUserId';

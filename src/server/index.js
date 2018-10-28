@@ -1,11 +1,11 @@
 import logger from 'logger';
 import express from 'express';
 import osprey from 'osprey';
-let join = require('path').join;
+const join = require('path').join;
 
 import requestRouter from './routes/requests';
 
-let PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT || 3001;
 
 class Server {
   constructor() {
@@ -15,7 +15,7 @@ class Server {
     logger.info('starting server...');
     osprey.loadFile(join(__dirname, 'api.raml'))
       .then(function (middleware) {
-        let app = express();
+        const app = express();
 
         app.use('/', middleware, requestRouter);
 

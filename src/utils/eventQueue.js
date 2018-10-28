@@ -11,7 +11,7 @@ const KeyedMessage = kafka.KeyedMessage;
 const ORDERS_TOPIC = 'orders';
 const NOTIFICATIONS_TOPIC = 'notifications';
 const PORT = '2181';
-const URL = 'localhost';
+const URL = '127.0.0.1';
 
 const BALANCES_TOPIC = 'balances';
 

@@ -23,6 +23,9 @@
             "moduleInfo" : [
                 "./src/utils/moduleInfo"
             ],
+            "exchangeIds": [
+                "./src/utils/exchangeIds"
+            ],
         }
     },
     "exclude": [
