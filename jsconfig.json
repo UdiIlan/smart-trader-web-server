@@ -17,14 +17,8 @@
             "eventQueue": [
                 "./src/utils/eventQueue"
             ],
-            "notifications" : [
-                "./src/utils/notifications"
-            ],
             "moduleInfo" : [
                 "./src/utils/moduleInfo"
-            ],
-            "exchangeIds": [
-                "./src/utils/exchangeIds"
             ],
         }
     },

@@ -1,5 +1,5 @@
 import logger from 'logger';
-import { NotificationsString }  from  './notifications';
+import { NotificationsString }  from  'smart-trader-common';
 import moment from 'moment';
 import { Module } from 'moduleInfo';
 
