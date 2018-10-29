@@ -16,7 +16,97 @@ const eventQueue = new EventQueue();
 // const handler = new Handler();
 let router = osprey.Router();
 
+router.post('/exchange/{exchange}/login', async (req, res, next) => {
+  req.body['exchange'] = req.params.exchange;
+  login(req, res, next);
+});
+
 router.post('/login', async (req, res, next) => {
+  login(req, res, next);
+});
+
+
+router.post('/getUserData', async (req, res, next) => {
+  getUserData(req, res, next);
+});
+
+router.get('/exchange/{exchange}/accountBalance', async (req, res, next) => {
+  req.body = {};
+  req.body['exchange'] = req.params.exchange;
+  getUserData(req, res, next);
+});
+
+
+router.post('/buyImmediateOrCancel', async (req, res, next) => {
+  buyImmediateOrCancel(req, res, next);
+});
+
+router.post('/sellImmediateOrCancel', async (req, res, next) => {
+  sellImmediateOrCancel(req, res, next);
+});
+
+router.post('/timedBuyTaking', async (req, res, next) => {
+  timedBuyTaking(req, res, next);
+});
+
+router.post('/timedSellTaking', async (req, res, next) => {
+  timedSellTaking(req, res, next);
+});
+
+router.post('/sendOrder', async (req, res, next) => {
+  req.body['exchange'] = req.body.exchanges[0];
+  req.body['currencyPair'] = req.body.assetPair;
+  req.body['amount'] = req.body.size;
+  const action = req.body.actionType;
+  switch(action) {
+
+    case 'buy':
+      if (req.body.price) {
+        buyImmediateOrCancel(req,res,next);
+      }
+      else{
+        buyMarket(req, res, next);
+      }
+      break;
+    case 'sell':
+      if (req.body.price) {
+        sellImmediateOrCancel(req,res,next);
+      }
+      else{
+        sellMarket(req, res, next);
+      }
+      break;
+    case 'timedBuyTaking':
+      timedBuyTaking(req, res, next);
+      break;
+    case 'timedSellTaking':
+      timedSellTaking(req, res, next);
+      break;
+    case 'timedBuyMaking':
+      timedBuyMaking(req, res, next);
+      break;
+    case 'timedSellMaking':
+      timedSellMaking(req, res, next);
+      break;
+
+    default:
+      logger.error('unknown actionType');
+      return;
+  }
+
+});
+
+
+
+router.post('/timedBuyMaking', async (req, res, next) => {
+  timedBuyMaking(req, res, next);
+});
+
+router.post('/timedSellMaking', async (req, res, next) => {
+  timedSellMaking(req, res, next);
+});
+
+function login(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
   const keyVal = req.body.key;
@@ -25,100 +115,111 @@ router.post('/login', async (req, res, next) => {
 
   logger.debug('about to send login to ' + exchangeVal + ' request for key = ' + keyVal + ', request id = ' + requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
-    { exchange: exchangeVal,
+    {
+      exchange: exchangeVal,
       requestId: requestIdVal
     });
 
   eventQueue.sendRequest(orderTypes.login,
-    { exchange: exchangeVal,
+    {
+      exchange: exchangeVal,
       key: keyVal,
       secret: secretVal,
       clientId: clientIdVal,
       requestId: requestIdVal,
-      userId : DEFAULT_USER_ID,
+      userId: DEFAULT_USER_ID,
     });
   logger.debug('login request for key = ' + keyVal + ', request id = ' + requestIdVal + ' was sent');
   res.status = 200;
   res.end('login request sent');
   next();
-});
+}
 
-
-router.post('/getUserData', async (req, res, next) => {
+function getUserData(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
   logger.debug('about to send getUserData request to ' + exchangeVal + ', request id = ' + requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
-    { requestId: requestIdVal ,
-      exchange : exchangeVal,
+    {
+      requestId: requestIdVal,
+      exchange: exchangeVal,
     });
 
   eventQueue.sendRequest(
     orderTypes.getUserData,
-    { exchange: exchangeVal,
+    {
+      exchange: exchangeVal,
       requestId: requestIdVal,
-      userId : 'defaultUserId',
+      userId: 'defaultUserId',
     });
   logger.debug('getUserData request for key = ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
   res.status = 200;
   res.end('getUserData request sent');
   next();
-});
+}
 
+function buyImmediateOrCancel(req, res, next) {
 
-router.post('/buyImmediateOrCancel', async (req, res, next) => {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
   logger.debug('about to send buyImmediateOrCancel request to ' + exchangeVal + ', request id = ' + requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
-    { requestId: requestIdVal,
+    {
+      requestId: requestIdVal,
       exchange: exchangeVal,
     });
 
   eventQueue.sendRequest(orderTypes.buyImmediateOrCancel,
-    { exchange: exchangeVal,
+    {
+      exchange: exchangeVal,
       requestId: requestIdVal,
       amount: req.body.amount,
-      price:  req.body.price,
+      price: req.body.price,
       currencyPair: req.body.currencyPair,
-      userId : 'defaultUserId',
+      userId: 'defaultUserId',
     });
   logger.debug('buyImmediateOrCancel request to ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
 
   res.status = 200;
   res.end('buyImmediateOrCancel request sent');
   next();
+}
 
-});
-
-router.post('/sellImmediateOrCancel', async (req, res, next) => {
+function sellImmediateOrCancel(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
   logger.debug('about to send sellImmediateOrCancel request to ' + exchangeVal + ', request id = ' + requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
-    { requestId: requestIdVal,
+    {
+      requestId: requestIdVal,
       exchange: exchangeVal,
     });
   eventQueue.sendRequest(orderTypes.sellImmediateOrCancel,
-    { exchange: exchangeVal,
+    {
+      exchange: exchangeVal,
       requestId: requestIdVal,
       amount: req.body.amount,
-      price:  req.body.price,
+      price: req.body.price,
       currencyPair: req.body.currencyPair,
-      userId : 'defaultUserId',
+      userId: 'defaultUserId',
     });
   logger.debug('sellImmediateOrCancel request to ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
 
   res.status = 200;
   res.end('sellImmediateOrCancel request sent');
   next();
+}
 
-});
+function buyMarket(req, res, next) {
 
-router.post('/timeBuyTaking', async (req, res, next) => {
+}
+function sellMarket(req, res, next) {
+}
+
+function timedBuyTaking(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
@@ -126,103 +227,110 @@ router.post('/timeBuyTaking', async (req, res, next) => {
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
     {
       exchange: exchangeVal,
-      requestId: requestIdVal ,
+      requestId: requestIdVal,
     });
 
   eventQueue.sendRequest(orderTypes.timeBuyTaking,
-    { exchange: exchangeVal,
+    {
+      exchange: exchangeVal,
       requestId: requestIdVal,
       amount: req.body.amount,
-      price:  req.body.price,
+      price: req.body.price,
       currencyPair: req.body.currencyPair,
-      userId : 'defaultUserId',
+      userId: 'defaultUserId',
       periodMinute: req.body.duration,
-      maxSizePerTransaction : req.body.maxOrderSize,
+      maxSizePerTransaction: req.body.maxOrderSize,
     });
   logger.debug('timeBuyTaking request to ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
 
   res.status = 200;
   res.end('timeBuyTaking request sent');
   next();
-});
+}
 
-router.post('/timeSellTaking', async (req, res, next) => {
+function timedSellTaking(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
   logger.debug('about to send timeSellTaking request to ' + exchangeVal + ', request id = ' + requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
     {
-      requestId: requestIdVal ,
+      requestId: requestIdVal,
       exchange: exchangeVal,
     });
   eventQueue.sendRequest(orderTypes.timeSellTaking,
-    { exchange: exchangeVal,
+    {
+      exchange: exchangeVal,
       requestId: requestIdVal,
       amount: req.body.amount,
-      price:  req.body.price,
+      price: req.body.price,
       currencyPair: req.body.currencyPair,
-      userId : 'defaultUserId',
+      userId: 'defaultUserId',
       periodMinute: req.body.duration,
-      maxSizePerTransaction : req.body.maxOrderSize,
+      maxSizePerTransaction: req.body.maxOrderSize,
     });
   logger.debug('timeSellTaking request to ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
 
   res.status = 200;
   res.end('timeSellTaking request sent');
   next();
-});
+}
 
-router.post('/timedBuyMaking', async (req, res, next) => {
+function timedBuyMaking(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
   logger.debug('about to send timedBuyMaking request to ' + exchangeVal + ', request id = ' + requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
-    { requestId: requestIdVal ,
+    {
+      requestId: requestIdVal,
       exchange: exchangeVal
     });
   eventQueue.sendRequest(orderTypes.timedBuyMaking,
-    { exchange: exchangeVal,
+    {
+      exchange: exchangeVal,
       requestId: requestIdVal,
       amount: req.body.amount,
-      price:  req.body.price,
+      price: req.body.price,
       currencyPair: req.body.currencyPair,
-      userId : 'defaultUserId',
+      userId: 'defaultUserId',
       periodMinute: req.body.duration,
-      maxSizePerTransaction : req.body.maxOrderSize,
+      maxSizePerTransaction: req.body.maxOrderSize,
     });
   logger.debug('timedBuyMaking request to ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
 
   res.status = 200;
   res.end('timedBuyMaking request sent');
   next();
-});
+}
 
-router.post('/timedSellMaking', async (req, res, next) => {
+function timedSellMaking(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
   logger.debug('about to send timedSellMaking request to ' + exchangeVal + ', request id = ' + requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
-    { requestId: requestIdVal ,
-      exchange: exchangeVal });
+    {
+      requestId: requestIdVal,
+      exchange: exchangeVal
+    });
 
   eventQueue.sendRequest(orderTypes.timedSellMaking,
-    { exchange: exchangeVal,
+    {
+      exchange: exchangeVal,
       requestId: requestIdVal,
       amount: req.body.amount,
-      price:  req.body.price,
+      price: req.body.price,
       currencyPair: req.body.currencyPair,
-      userId : 'defaultUserId',
+      userId: 'defaultUserId',
       periodMinute: req.body.duration,
-      maxSizePerTransaction : req.body.maxOrderSize,
+      maxSizePerTransaction: req.body.maxOrderSize,
     });
   logger.debug('timedSellMaking request to ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
 
   res.status = 200;
   res.end('timedSellMaking request sent');
   next();
-});
+}
 
 export default router;
