@@ -28,7 +28,7 @@ post:
     responses:
       200:
         body: 
-          type: AccountStatus
+          type: AccountBalance
 
   /balance:
     get:
@@ -41,11 +41,26 @@ post:
                   {
                     "totalBalance":
                       {
-                        "USD": 1600,
-                        "BTC": 0.7
-                      }
+                        "USD": 
+                          {
+                            "confirmed": 1600,
+                            "pendingDeposit": 0,
+                            "pendingWithdrawal": 6850
+                          },
+                        "BTC":
+                          {
+                            "confirmed": 2500,
+                            "pendingDeposit": 7000,
+                            "pendingWithdrawal": 0
+                          },
+                        "BCH":
+                          {
+                            "confirmed": 8750,
+                            "pendingDeposit": 5400,
+                            "pendingWithdrawal": 0
+                          }             
+                      }            
                   }            
 
-/funds: !include funds.raml
-/trades: !include trades.raml
-/reports: !include reports.raml
+  /funds: !include funds.raml
+  /trades: !include trades.raml

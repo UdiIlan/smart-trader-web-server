@@ -3,6 +3,7 @@
 type: object
 displayName: OrderStatus
 properties: 
+  account: string
   startTime: datetime
   elapsedTimeMinutes: number
   assetPair: string
@@ -12,9 +13,9 @@ properties:
   executionSize:
     type: number
     description: Size executed so far.
-  executedTargerAmmount:
+  executedTargetAmount:
     type: number
-    description: The ammount of the target asset executed so far.
+    description: The amount of the target asset executed so far.
   executionMessage?: string
   tradeOrderId: string
   walletAddress: string

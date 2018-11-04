@@ -3,29 +3,107 @@
 ---
 
 description: Smart-Trader reports APIs
-/sentOrders:
+
+/listTrades:
   post:
-    description: Generat report on sent transactions data.
+    description: Generate report on tarde requests.
     body:
       application/json:
         properties:
-          limit: 
-            description: Limit the resposnse size (default is 1000).
-            type: number
-            required: true
           filter:
             description: Report object.
-            required: true
             type: ReportFilter
     responses:
       200:
         body:
-          application/json:
+          type: array
+          items:
+            type: OrderStatus
+          example:
+            [
+                {
+                  "account": "BTC.com",
+                  "startTime": 2018-10-10 10:05:13.384,
+                  "elapsedTimeMinutes": 15.42,
+                  "assetPair": "BTC-USD",
+                  "status": "In-Progress",
+                  "requestedSize": 1500,
+                  "executionSize": 1001,
+                  "executedTargetAmount": 850000,
+                  "tradeOrderId": "ABC2D",
+                  "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s"
+                },
+                {
+                  "account": "BTC.com",
+                  "startTime": 2018-08-21 14:23:52.186,
+                  "elapsedTimeMinutes": 35.24,
+                  "assetPair": "BCH-USD",
+                  "status": "Done",
+                  "requestedSize": 85000,
+                  "executionSize": 85000,
+                  "executedTargetAmount": 1400000,
+                  "tradeOrderId": "F6K3F",
+                  "walletAddress": "gf51qdp9q0lae7vz9vn4drw4e48kqkk44sccp348hf"
+                }
+            ]
+
+/listWithdrawals:
+  post:
+    description: Generate report on withdrawal requests.
+    body:
+      application/json:
+        properties:
+          filter:
+            description: Report object.
+            type: ReportFilter
+    responses:
+      200:
+        body:
+          type: array
+          items:
+            type: object
+            properties:
+              time: datetime
+              assetType: string
+              amount : number
+              account: string
+              userId: string
+          example:
+            [
+                {
+                  "time": 2018-10-10 10:05:13.384,
+                  "assetType": "USD",
+                  "amount": 1500000,
+                  "account": "BTC.com",
+                  "userId": "bob"
+                },
+                {
+                  "time": 2018-07-11 23:42:21.958,
+                  "assetType": "EUR",
+                  "amount": 86646000,
+                  "account": "BTC.com",
+                  "userId": "alice"
+                }
+            ]
+  
+
+/listOrders:
+  post:
+    description: Generate report on sent transactions data.
+    body:
+      application/json:
+        properties:
+          filter:
+            description: Report object.
+            type: ReportFilter
+    responses:
+      200:
+        body:
             type: SentOrder[]
             example:
               [
                 { 
-                  "account": "BTC.com"
+                  "account": "BTC.com",
                   "exchange": "Bitfinex",
                   "actionType": "buy",
                   "size": 0.1,
@@ -42,7 +120,7 @@ description: Smart-Trader reports APIs
                   "tradeOrderId": "850"
                 },
                 { 
-                  "account": "BTC.com"
+                  "account": "BTC.com",
                   "exchange": "Bitstamp",
                   "actionType": "buy",
                   "size": 0.1,
@@ -59,7 +137,7 @@ description: Smart-Trader reports APIs
                   "tradeOrderId": "850"
                 },
                 { 
-                  "account": "BTC.com"
+                  "account": "BTC.com",
                   "exchange": "Kraken",
                   "actionType": "buy",
                   "size": 0.1,
@@ -76,6 +154,3 @@ description: Smart-Trader reports APIs
                   "tradeOrderId": "850"
                 }
               ]    
-  
-
-
