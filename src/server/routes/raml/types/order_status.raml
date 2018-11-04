@@ -7,9 +7,11 @@ properties:
   startTime: datetime
   elapsedTimeMinutes: number
   assetPair: string
+  actionType: string
   status:
-    enum: ["Failed", "Done", "In-Progress"]
+    enum: [Done, Failed, In-Progress]
   requestedSize: number
+  requestedPrice: number
   executionSize:
     type: number
     description: Size executed so far.
@@ -18,5 +20,10 @@ properties:
     description: The amount of the target asset executed so far.
   executionMessage?: string
   tradeOrderId: string
-  walletAddress: string
-
+  walletPlane: 
+    type: array
+    items:
+      type: object
+      properties:
+        walletAddress: string
+        amount: number

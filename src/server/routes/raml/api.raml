@@ -9,19 +9,13 @@ securedBy: [ passthrough ]
 securitySchemes:
   passthrough: !include securitySchemas/passthrough.raml
 
-types: 
-  ReportFilter: !include types/report_filter.raml
-  Order: !include types/order.raml
-  RequestedOrder: !include types/requested_order.raml
-  ExchangeCredentials: !include types/exchange_credentials.raml
-  OrderStatus: !include types/order_status.raml
-  SentOrder: !include types/sent_order.raml
-  AccountStatus: !include types/account_status.raml
+types:
   AccountBalance: !include types/account_balance.raml
-  User: !include types/user.raml
-  WalletDeposit: !include types/wallet_deposit.raml
+  Order: !include types/order.raml
   WithdrawalStatus: !include types/withdrawal_status.raml
+  OrderStatus: !include types/order_status.raml
+  ReportFilter: !include types/report_filter.raml
+  SentOrder: !include types/sent_order.raml
 
-# /users: !include ./endpoints/users.raml 
 /accounts: !include ./endpoints/accounts.raml 
 /reports: !include ./endpoints/reports.raml      

@@ -9,11 +9,13 @@ post:
       properties: 
         name: string
         description?: string
-        # exchangeCredentials: ExchangeCredentials[]
   responses:
     200:
       body: 
-        type: AccountStatus
+        type: object
+        properties: 
+          accountName: string
+          description?: string
 
 
 /{accountName}:
@@ -24,7 +26,6 @@ post:
         type: object
         properties:
           description?: string
-          # exchangeCredentials?: ExchangeCredentials[]
     responses:
       200:
         body: 

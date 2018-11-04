@@ -1,177 +1,5 @@
 #%RAML 1.0
 ---
-      
-# /depositRequests:
-#   post:
-#     description: Request for a new deposit of assets to Smart-Trader account.
-#     body:
-#       application/json:
-#         type: object
-#         properties: 
-#           assetType: string
-#           amount: number
-#     responses:
-#       200:
-#         body:
-#           type: object
-#           properties:
-#             requestTime: datetime
-#             assetType: string
-#             amount: number
-#             walletAddress : string
-#           example:
-#             {
-#               "requestTime": 2018-10-10 10:05:13.384,
-#               "assetType": "BTC",
-#               "amount": 1500,
-#               "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s"
-#             }
-
-#   get:       
-#     description: List recent account deposit request history.
-#     queryParameters:
-#       limit?:
-#         description: Limits the number of deposit that will be returned.
-#         type: number
-#     responses:
-#       200:
-#         body:
-#           type: array
-#           items:
-#             type: object
-#             properties:
-#               time: datetime
-#               assetType: string
-#               amount: number
-#               walletAddress : string
-#               account: string
-#               userId: string
-#           example:
-#             [
-#                 {
-#                   "time": 2018-10-10 10:05:13.384,
-#                   "assetType": "BTC",
-#                    "amount": 1500,
-#                   "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s",
-#                   "account": "BTC.com",
-#                   "userId": "bob"
-#                 },
-#                 {
-#                   "time": 2018-07-11 23:42:21.958,
-#                   "assetType": "ETH",
-#                   "amount": 7850,
-#                   "walletAddress": "0x301DF4cC1049982D8c289d9134Cd302678946Dd8"
-#                   "account": "BTC.com",
-#                   "userId": "alice"
-#                 }
-#             ]
-  # /deposits:
-  #   get: 
-  #       description: Returns recent deposits for the given account.
-  #       queryParameters:
-  #         limit?:
-  #           description: Limits the number of deposits that will be returned.
-  #       type: number
-  #       responses:
-  #         200:
-  #           body:
-  #             type: WalletDeposit[]
-  #             example: 
-  #               [
-  #                 {
-  #                   "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s",
-  #                   "requestTime": 2018-10-10 10:05:13.384,
-  #                   "assetType": "BTC",
-  #                   "amount": 4500,
-  #                   "deposits": 
-  #                   [
-  #                     {
-  #                       "time": 2018-10-10 10:35:13.384,
-  #                       "amount": 1500,
-  #                       "status": "Completed",
-  #                       "confirmations": 6
-  #                     },
-  #                     {
-  #                       "time": 2018-10-10 11:37:13.384,
-  #                       "amount": 2300,
-  #                       "status": "Confirmed",
-  #                       "confirmations": 4
-  #                     },
-  #                     {
-  #                       "time": 2018-10-11 07:52:13.384,
-  #                       "amount": 700,
-  #                       "status": "Unconfirmed",
-  #                       "confirmations": 0
-  #                     }
-  #                   ]              
-  #                 },
-  #                 {
-  #                   "walletAddress": "0x301DF4cC1049982D8c289d9134Cd302678946Dd8",
-  #                   "requestTime": 2018-07-05 14:22:26.953,
-  #                   "assetType": "ETH",
-  #                   "amount": 10600,
-  #                   "deposits": 
-  #                   [
-  #                     {
-  #                       "time": 2018-07-05 14:52:26.953,
-  #                       "amount": 8500,
-  #                       "status": "Completed",
-  #                       "confirmations": 12
-  #                     },
-  #                     {
-  #                       "time": 2018-07-056 17:28:35.428,
-  #                       "amount": 1600,
-  #                       "status": "Confirmed",
-  #                       "confirmations": 8
-  #                     },
-  #                     {
-  #                       "time": 2018-08-09 23:57:45.562,
-  #                       "amount": 500,
-  #                       "status": "Unconfirmed",
-  #                       "confirmations": 0
-  #                     }
-  #                   ]              
-  #                 }
-  #               ]
-
-  #   /{walletAddress}:
-  #     get:       
-  #       description: Returns recent deposits for the given wallet address.
-  #       queryParameters:
-  #         limit?:
-  #           description: Limits the number of deposits that will be returned.
-  #       responses:
-  #         200:
-  #           body:
-  #             type: WalletDeposit
-  #             example:
-  #                 {
-  #                   "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s",
-  #                   "requestTime": 2018-10-10 10:05:13.384,
-  #                   "assetType": "BTC",
-  #                   "amount": 4500,
-  #                   "deposits": 
-  #                   [
-  #                     {
-  #                       "time": 2018-10-10 10:35:13.384,
-  #                       "amount": 1500,
-  #                       "status": "Completed",
-  #                       "confirmations": 6
-  #                     },
-  #                     {
-  #                       "time": 2018-10-10 11:37:13.384,
-  #                       "amount": 2300,
-  #                       "status": "Confirmed",
-  #                       "confirmations": 4
-  #                     },
-  #                     {
-  #                       "time": 2018-10-11 07:52:13.384,
-  #                       "amount": 700,
-  #                       "status": "Unconfirmed",
-  #                       "confirmations": 0
-  #                     }
-  #                   ]              
-  #                 }
 
 /withdrawals:
   post:
@@ -230,22 +58,22 @@
             type: WithdrawalStatus
           example:
             [
-                {
-                   "account": "BTC.com",
-                  "transactionId": "FDSGDFHT15DS",
-                  "requestTime": 2018-10-10 10:05:13.384,
-                  "amount": 1500,
-                  "assetType": "USD",
-                  "status": "In-Progress"
-                },
-                {
-                  "account": "BTC.com",
-                  "transactionId": "HDS54SDGDGD",
-                  "requestTime": 2018-09-03 14:32:47.906,
-                  "amount": 2750,
-                  "assetType": "USD",
-                  "status": "Success"
-                }
+              {
+                "account": "BTC.com",
+                "transactionId": "FDSGDFHT15DS",
+                "requestTime": 2018-10-10 10:05:13.384,
+                "amount": 1500,
+                "assetType": "USD",
+                "status": "In-Progress"
+              },
+              {
+                "account": "BTC.com",
+                "transactionId": "HDS54SDGDGD",
+                "requestTime": 2018-09-03 14:32:47.906,
+                "amount": 2750,
+                "assetType": "USD",
+                "status": "Done"
+              }
             ]
 
   /{transactionId}:
