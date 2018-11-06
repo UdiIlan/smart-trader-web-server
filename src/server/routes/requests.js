@@ -1,18 +1,14 @@
-// import Handler from 'handlerDelegator';
 // import { returnMessages } from 'status';
 import EventQueue from 'eventQueue';
 import logger from 'logger';
 import osprey from 'osprey';
 import uuidv4 from 'uuid/v4';
-import { orderTypes, orderTypesStr, Notifications } from 'smart-trader-common';
+import { orderTypes, Notifications } from 'smart-trader-common';
+import nodeConfigModule from 'node-config-module';
 
+const conf = nodeConfigModule.getConfig();
+const eventQueue = new EventQueue(conf);
 
-const DEFAULT_USER_ID = 'defaultUserId';
-
-const eventQueue = new EventQueue();
-
-
-// const handler = new Handler();
 let router = osprey.Router();
 
 router.post('/exchange/{exchange}/login', async (req, res, next) => {
@@ -20,14 +16,14 @@ router.post('/exchange/{exchange}/login', async (req, res, next) => {
   login(req, res, next);
 });
 
-router.post('/login', async (req, res, next) => {
-  login(req, res, next);
-});
+// router.post('/login', async (req, res, next) => {
+//   login(req, res, next);
+// });
 
 
-router.post('/getUserData', async (req, res, next) => {
-  getUserData(req, res, next);
-});
+// router.post('/getUserData', async (req, res, next) => {
+//   getUserData(req, res, next);
+// });
 
 router.get('/exchange/{exchange}/accountBalance', async (req, res, next) => {
   req.body = {};
@@ -36,21 +32,21 @@ router.get('/exchange/{exchange}/accountBalance', async (req, res, next) => {
 });
 
 
-router.post('/buyImmediateOrCancel', async (req, res, next) => {
-  buyImmediateOrCancel(req, res, next);
-});
+// router.post('/buyImmediateOrCancel', async (req, res, next) => {
+//   buyImmediateOrCancel(req, res, next);
+// });
 
-router.post('/sellImmediateOrCancel', async (req, res, next) => {
-  sellImmediateOrCancel(req, res, next);
-});
+// router.post('/sellImmediateOrCancel', async (req, res, next) => {
+//   sellImmediateOrCancel(req, res, next);
+// });
 
-router.post('/timedBuyTaking', async (req, res, next) => {
-  timedBuyTaking(req, res, next);
-});
+// router.post('/timedBuyTaking', async (req, res, next) => {
+//   timedBuyTaking(req, res, next);
+// });
 
-router.post('/timedSellTaking', async (req, res, next) => {
-  timedSellTaking(req, res, next);
-});
+// router.post('/timedSellTaking', async (req, res, next) => {
+//   timedSellTaking(req, res, next);
+// });
 
 router.post('/sendOrder', async (req, res, next) => {
   req.body['exchange'] = req.body.exchanges[0];
@@ -97,13 +93,13 @@ router.post('/sendOrder', async (req, res, next) => {
 
 
 
-router.post('/timedBuyMaking', async (req, res, next) => {
-  timedBuyMaking(req, res, next);
-});
+// router.post('/timedBuyMaking', async (req, res, next) => {
+//   timedBuyMaking(req, res, next);
+// });
 
-router.post('/timedSellMaking', async (req, res, next) => {
-  timedSellMaking(req, res, next);
-});
+// router.post('/timedSellMaking', async (req, res, next) => {
+//   timedSellMaking(req, res, next);
+// });
 
 function login(req, res, next) {
   const requestIdVal = uuidv4();
@@ -112,7 +108,7 @@ function login(req, res, next) {
   const secretVal = req.body.secret;
   const clientIdVal = req.body.clientId;
 
-  logger.debug('about to send login to ' + exchangeVal + ' request for key = ' + keyVal + ', request id = ' + requestIdVal);
+  logger.debug('about to send login to %s request for key =  %s, request id = %s', exchangeVal, keyVal, requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
     {
       exchange: exchangeVal,
@@ -126,9 +122,9 @@ function login(req, res, next) {
       secret: secretVal,
       clientId: clientIdVal,
       requestId: requestIdVal,
-      userId: DEFAULT_USER_ID,
+      userId: conf.defaultUserId,
     });
-  logger.debug('login request for key = ' + keyVal + ', request id = ' + requestIdVal + ' was sent');
+  logger.debug('login request for key = %s, request id = %s was sent',keyVal, requestIdVal);
   res.status = 200;
   res.end('login request sent');
   next();
@@ -138,7 +134,7 @@ function getUserData(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
-  logger.debug('about to send getUserData request to ' + exchangeVal + ', request id = ' + requestIdVal);
+  logger.debug('about to send getUserData request to %s, request id = %s', exchangeVal, requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
     {
       requestId: requestIdVal,
@@ -150,9 +146,9 @@ function getUserData(req, res, next) {
     {
       exchange: exchangeVal,
       requestId: requestIdVal,
-      userId: 'defaultUserId',
+      userId: conf.defaultUserId,
     });
-  logger.debug('getUserData request for key = ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
+  logger.debug('getUserData request for key = %s, request id = %s was sent', exchangeVal, requestIdVal);
   res.status = 200;
   res.end('getUserData request sent');
   next();
@@ -163,7 +159,7 @@ function buyImmediateOrCancel(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
-  logger.debug('about to send buyImmediateOrCancel request to ' + exchangeVal + ', request id = ' + requestIdVal);
+  logger.debug('about to send buyImmediateOrCancel request to %s, request id = %s', exchangeVal, requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
     {
       requestId: requestIdVal,
@@ -177,9 +173,9 @@ function buyImmediateOrCancel(req, res, next) {
       amount: req.body.amount,
       price: req.body.price,
       currencyPair: req.body.currencyPair,
-      userId: 'defaultUserId',
+      userId: conf.defaultUserId,
     });
-  logger.debug('buyImmediateOrCancel request to ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
+  logger.debug('buyImmediateOrCancel request to %s, request id = %s was sent', exchangeVal, requestIdVal);
 
   res.status = 200;
   res.end('buyImmediateOrCancel request sent');
@@ -190,7 +186,7 @@ function sellImmediateOrCancel(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
-  logger.debug('about to send sellImmediateOrCancel request to ' + exchangeVal + ', request id = ' + requestIdVal);
+  logger.debug('about to send sellImmediateOrCancel request to %s, request id = %s', exchangeVal, requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
     {
       requestId: requestIdVal,
@@ -203,9 +199,9 @@ function sellImmediateOrCancel(req, res, next) {
       amount: req.body.amount,
       price: req.body.price,
       currencyPair: req.body.currencyPair,
-      userId: 'defaultUserId',
+      userId: conf.defaultUserId,
     });
-  logger.debug('sellImmediateOrCancel request to ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
+  logger.debug('sellImmediateOrCancel request to %s, request id = %s was sent', exchangeVal, requestIdVal);
 
   res.status = 200;
   res.end('sellImmediateOrCancel request sent');
@@ -222,7 +218,7 @@ function timedBuyTaking(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
-  logger.debug('about to send timeBuyTaking request to ' + exchangeVal + ', request id = ' + requestIdVal);
+  logger.debug('about to send timeBuyTaking request to %s, request id = %s'  , exchangeVal, requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
     {
       exchange: exchangeVal,
@@ -236,11 +232,11 @@ function timedBuyTaking(req, res, next) {
       amount: req.body.amount,
       price: req.body.price,
       currencyPair: req.body.currencyPair,
-      userId: 'defaultUserId',
+      userId: conf.defaultUserId,
       periodMinute: req.body.duration,
       maxSizePerTransaction: req.body.maxOrderSize,
     });
-  logger.debug('timeBuyTaking request to ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
+  logger.debug('timeBuyTaking request to %s, request id = %s was sent', exchangeVal, requestIdVal);
 
   res.status = 200;
   res.end('timeBuyTaking request sent');
@@ -251,7 +247,7 @@ function timedSellTaking(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
-  logger.debug('about to send timeSellTaking request to ' + exchangeVal + ', request id = ' + requestIdVal);
+  logger.debug('about to send timeSellTaking request to %s, request id = $s', exchangeVal, requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
     {
       requestId: requestIdVal,
@@ -264,11 +260,11 @@ function timedSellTaking(req, res, next) {
       amount: req.body.amount,
       price: req.body.price,
       currencyPair: req.body.currencyPair,
-      userId: 'defaultUserId',
+      userId: conf.defaultUserId,
       periodMinute: req.body.duration,
       maxSizePerTransaction: req.body.maxOrderSize,
     });
-  logger.debug('timeSellTaking request to ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
+  logger.debug('timeSellTaking request to %s, request id = %s was sent',exchangeVal , requestIdVal);
 
   res.status = 200;
   res.end('timeSellTaking request sent');
@@ -279,7 +275,7 @@ function timedBuyMaking(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
-  logger.debug('about to send timedBuyMaking request to ' + exchangeVal + ', request id = ' + requestIdVal);
+  logger.debug('about to send timedBuyMaking request to %s, request id = %s' , exchangeVal, requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
     {
       requestId: requestIdVal,
@@ -292,11 +288,11 @@ function timedBuyMaking(req, res, next) {
       amount: req.body.amount,
       price: req.body.price,
       currencyPair: req.body.currencyPair,
-      userId: 'defaultUserId',
+      userId: conf.defaultUserId,
       periodMinute: req.body.duration,
       maxSizePerTransaction: req.body.maxOrderSize,
     });
-  logger.debug('timedBuyMaking request to ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
+  logger.debug('timedBuyMaking request to %s, request id = %s was sent', exchangeVal, requestIdVal);
 
   res.status = 200;
   res.end('timedBuyMaking request sent');
@@ -307,7 +303,7 @@ function timedSellMaking(req, res, next) {
   const requestIdVal = uuidv4();
   const exchangeVal = req.body.exchange.toLowerCase();
 
-  logger.debug('about to send timedSellMaking request to ' + exchangeVal + ', request id = ' + requestIdVal);
+  logger.debug('about to send timedSellMaking request to %s, request id = %s' , exchangeVal, requestIdVal);
   eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
     {
       requestId: requestIdVal,
@@ -321,11 +317,11 @@ function timedSellMaking(req, res, next) {
       amount: req.body.amount,
       price: req.body.price,
       currencyPair: req.body.currencyPair,
-      userId: 'defaultUserId',
+      userId: conf.defaultUserId,
       periodMinute: req.body.duration,
       maxSizePerTransaction: req.body.maxOrderSize,
     });
-  logger.debug('timedSellMaking request to ' + exchangeVal + ', request id = ' + requestIdVal + ' was sent');
+  logger.debug('timedSellMaking request to %s, request id = %s was sent', exchangeVal, requestIdVal );
 
   res.status = 200;
   res.end('timedSellMaking request sent');

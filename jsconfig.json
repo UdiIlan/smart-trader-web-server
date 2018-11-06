@@ -20,6 +20,9 @@
             "moduleInfo" : [
                 "./src/utils/moduleInfo"
             ],
+            "websocketWrapper" : [
+                "./src/utils/websocketWrapper"
+            ],
         }
     },
     "exclude": [

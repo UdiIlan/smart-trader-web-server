@@ -22,7 +22,8 @@
                     "db": "./src/dal",
                     "logger": "./src/utils/logger",
                     "eventQueue": "./src/utils/eventQueue",
-                    "moduleInfo" : "./src/utils/moduleInfo"
+                    "moduleInfo" : "./src/utils/moduleInfo",
+                    "websocketWrapper" : "./src/utils/websocketWrapper"
                 }
             }
         ]
