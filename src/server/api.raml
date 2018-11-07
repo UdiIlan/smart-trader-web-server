@@ -15,6 +15,7 @@ title: smart trader rest api between front end and back end
             required: true 
           actionType: 
             type: string
+            enum: ["buy_making", "sell_making", "buy", "sell"]
             required: true
           size: 
             type: number
@@ -25,7 +26,7 @@ title: smart trader rest api between front end and back end
           price: 
             type: number
             required: false
-          durationSec: 
+          durationMinutes: 
             type: number
             required: false
           maxOrderSize: 

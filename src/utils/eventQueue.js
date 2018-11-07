@@ -1,80 +1,84 @@
 import logger from 'logger';
-import { NotificationsString }  from  'smart-trader-common';
 import moment from 'moment';
 import { Module } from 'moduleInfo';
-import getWebsocketWrapper from 'websocketWrapper';
 import kafka from 'kafka-node';
+
 
 const Producer = kafka.Producer;
 const KeyedMessage = kafka.KeyedMessage;
-const webSocketWrapper = getWebsocketWrapper();
-
 
 
 let PARTITION = 0;
-let OrdersTopic = null;
+const MAX_RETRIES = 3;
 
 class EventQueue {
-  constructor(params) {
+  constructor(params, handleMessageCb) {
     //  order  producer initialization
-    OrdersTopic = params.ordersTopic;
-    this.balancesTopic = params.balancesTopic;
+    this.ordersTopic = params.ordersTopic;
+    // this.balancesTopic = params.balancesTopic;
     this.notificationsTopic = params.notificationsTopic;
-    this.client1 = new kafka.Client(params.kafkaZookeeperUrl + ':' + params.kafkaZookeeperPort);
-    this.client2 = new kafka.Client(params.kafkaZookeeperUrl + ':' + params.kafkaZookeeperPort);
-    this.producer = new Producer(this.client1);
+    this.endpoint = params.endpoint;
+
+    let topics = params.topics;
+    let consumerGroupPrefix = Module.name;
+
+    this.initConsumerGroup(consumerGroupPrefix, topics, handleMessageCb);
+    this.initProducer();
+  }
+
+  initProducer() {
+    this.client = new kafka.Client(this.endpoint);
+    this.producer = new Producer(this.client);
 
     this.producer.on('ready', function () {
-      this.client.refreshMetadata([OrdersTopic], (err) => {
+      this.client.refreshMetadata([this.ordersTopic], (err) => {
         if (err) {
           logger.warn('Error refreshing kafka metadata %s', err);
         }
       });
-    });
+    }.bind(this));
 
     this.producer.on('error', function (err) {
       logger.error(err);
     });
+  }
 
-    // notification client
-    // let notificationClient = new kafka.Client('localhost:2182');
-    let topics = [{ topic: this.notificationsTopic, partition: PARTITION }];
-    let options = { autoCommit: true, fetchMaxWaitMs: 1000, fetchMaxBytes: 1024 * 1024 };
-    this.consumer = new kafka.Consumer(this.client1, topics, options);
-    this.offset = new kafka.Offset(this.client1);
+  initConsumerGroup(consumerGroupPrefix, topics, handleMessageCb) {
+    let retries = MAX_RETRIES;
+    try {
+      let options = { autoCommit: true,
+        fetchMaxWaitMs: 1000,
+        fetchMaxBytes: 1024 * 1024,
+        host: this.endpoint,
+        groupId: `${consumerGroupPrefix}-${topics.join('-')}`,
+        sessionTimeout: 15000,
+        protocol: ['roundrobin']
+      };
+      this.consumer = new kafka.ConsumerGroup(options, topics);
+      this.consumer.on('message', function (message) {
+        handleMessageCb(message);
+      })
+      ;
 
+      this.consumer.on('error', function (err) {
+        logger.error('Kafka experienced an error - %s', err);
+      });
 
-    this.consumer.on('message', function (message) {
-      webSocketWrapper.broadcast(NotificationsString[message.key] + '  ' + message.value);
-      console.log('NOTIFICATION type - ' + NotificationsString[message.key] + ' value  = ' + message.value);
-    });
-
-    this.consumer.on('error', function (err) {
-      logger.error('Kafka experienced an error - %s', err);
-    });
-
-
-
-
-    let balanceTopic = [{ topic: this.balancesTopic, partition: PARTITION }];
-    this.balanceConsumer = new kafka.Consumer(this.client2, balanceTopic, options);
-    this.balanceOffset = new kafka.Offset(this.client2);
-
-
-    this.balanceConsumer.on('message', function (message) {
-      logger.info('BALANCE!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! ---> %s', message.value);
-    });
-
-    this.balanceConsumer.on('error', function (err) {
-      logger.error('Kafka experienced an error - %s', err);
-    });
+    }
+    catch(err) {
+      logger.error('Error on kafka consumer:' + err);
+      if (retries > 0) {
+        retries--;
+        this.initConsumerGroup(consumerGroupPrefix, topics);
+      }
+    }
   }
 
   sendRequest(requestType, parameters) {
     parameters['eventTimeStamp'] = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     let keyedMessage = new KeyedMessage(requestType, JSON.stringify(parameters));
 
-    this.producer.send([{ topic: OrdersTopic, partition: PARTITION, messages: [keyedMessage] }], function (err, result) {
+    this.producer.send([{ topic: this.ordersTopic, partition: PARTITION, messages: [keyedMessage] }], function (err, result) {
       if (err) {
         logger.error(err);
       }
@@ -98,6 +102,5 @@ class EventQueue {
     });
   }
 }
-
 
 export default EventQueue;
