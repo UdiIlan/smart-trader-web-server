@@ -23,7 +23,8 @@
                     "logger": "./src/utils/logger",
                     "eventQueue": "./src/utils/eventQueue",
                     "moduleInfo" : "./src/utils/moduleInfo",
-                    "websocketWrapper" : "./src/utils/websocketWrapper"
+                    "websocketWrapper" : "./src/utils/websocketWrapper",
+                    "requestsExecuter" : "./src/server/modules/requestsExecuter"
                 }
             }
         ]

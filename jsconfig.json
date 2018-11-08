@@ -23,6 +23,9 @@
             "websocketWrapper" : [
                 "./src/utils/websocketWrapper"
             ],
+            "requestsExecuter" : [
+                "./src/server/modules/requestsExecuter"
+            ]
         }
     },
     "exclude": [

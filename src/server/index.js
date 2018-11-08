@@ -5,11 +5,13 @@ const join = require('path').join;
 
 import requestRouter from './routes/requests';
 import createError from 'http-errors';
-import getWebsocketWrapper from 'websocketWrapper';
+import getRequestsExecuter from './modules/requestsExecuter';
 
 class Server {
 
   start(params) {
+   
+    getRequestsExecuter(params);
     const PORT = process.env.PORT || params.serverPort;
     logger.info('starting server...');
     osprey.loadFile(join(__dirname, 'api.raml'))
@@ -27,7 +29,7 @@ class Server {
         // error handler
         app.use(function(err, req, res, next) {
         // set locals, only providing error in development
-            
+
           logger.error('error occurred: %o', err.message);
           res.locals.message = err.message;
           res.locals.error = app.get('env') === 'development' ? err : {};
