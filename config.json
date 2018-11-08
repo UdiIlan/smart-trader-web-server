@@ -1,0 +1,9 @@
+{
+   "serverPort": 3001,
+   "defaultUserId" : "defaultUserId",
+   "ordersTopic" : "orders",
+   "notificationsTopic" : "notifications",
+   "balancesTopic" : "balances",
+   "kafkaZookeeperPort" : "2181",
+   "kafkaZookeeperUrl" : "localhost"
+}

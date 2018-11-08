@@ -17,8 +17,14 @@
             "eventQueue": [
                 "./src/utils/eventQueue"
             ],
-            "notifications" : [
-                "./src/utils/notifications"
+            "moduleInfo" : [
+                "./src/utils/moduleInfo"
+            ],
+            "websocketWrapper" : [
+                "./src/utils/websocketWrapper"
+            ],
+            "requestsExecuter" : [
+                "./src/server/modules/requestsExecuter"
             ]
         }
     },
