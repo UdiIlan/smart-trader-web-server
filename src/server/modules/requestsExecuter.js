@@ -13,6 +13,7 @@ class RequestExecuter {
 
     this.defaultUserId = params.defaultUserId;
     this.webSocketWrapper = getWebsocketWrapper();
+    this.accounts = {};
     this.balances = {};
     this.cachedTotalBalance = {};
     this.dirtyCache = false;
@@ -32,20 +33,59 @@ class RequestExecuter {
       console.log('NOTIFICATION type - ' + NotificationsString[message.key] + ' value  = ' + message.value);
     }
     else if (message.topic === 'balances') {
-      logger.info('BALANCE MESSAGE --->key = %s, value =  %s',message.key, message.value);
-      this.balance[message.key] = JSON.parse(message.value);
+      logger.info('BALANCE MESSAGE, key = %s, value =  %o',message.key, message.value);
+      const incomingData = JSON.parse(message.value);
+      Object.keys(incomingData).forEach((userId) => {
+
+        if (!this.balances[userId]) {
+          this.balances[userId] = {};
+        }
+        this.balances[userId][message.key] = incomingData[userId];
+      });
+      this.dirtyCache = true;
     }
     else {
       logger.error('unknown topic %s', message.topic);
     }
   }
 
-  async getUserDataFromCache() {
-    var ans = null;
-    await Object.keys(this.balance).forEach((key) => {
-      ans = this.balance[key];// TODO accumilate from each exchange
-    });
-    return ans;
+  async getUserDataFromCache(userId) {
+
+    if (this.dirtyCache) {
+      await Object.keys(this.balances[userId]).forEach((exchange) => {
+        Object.keys(this.balances[userId][exchange]).forEach((currency) => {
+          if (this.cachedTotalBalance[currency]) {
+            this.cachedTotalBalance[currency] += Number(this.balances[userId][exchange][currency]);
+          }
+          else{
+            this.cachedTotalBalance[currency] =  Number(this.balances[userId][exchange][currency]);
+          }
+        });
+        this.dirtyCache = false;
+      });
+    }
+    return this.cachedTotalBalance;
+  }
+
+  createNewAccount(params) {
+    if (this.accounts[params.name]) {
+      throw new Error(`account ${params.name} already exist`);
+    }
+    this.accounts[params.name] = params.description;
+    // this.accounts[name]['description'] = description;
+  }
+
+  updateAccount(params) {
+    if (!this.accounts[params.name]) {
+      throw new Error(`account ${params.name} doesn't exist`);
+    }
+    this.accounts[params.name] = params.description;
+  }
+
+  validateAccount(accountName) {
+    if (!this.accounts[accountName]) {
+      throw new Error(`account ${accountName} doesn't exist` );
+    }
   }
 
   login(req, res) {
@@ -117,7 +157,7 @@ class RequestExecuter {
         amount: req.body.amount,
         price: req.body.price,
         currencyPair: req.body.currencyPair,
-        userId: this.defaultUserId,
+        userId: (req.body.userId ? req.body.userId : req.defaultUserId) ,
         durationMinutes: req.body.durationMinutes,
         maxSizePerTransaction: req.body.maxOrderSize,
         actionType: req.body.actionType,

@@ -21,30 +21,54 @@ description: Smart-Trader reports APIs
             type: OrderStatus
           example:
             [
-                {
-                  "account": "BTC.com",
-                  "startTime": 2018-10-10 10:05:13.384,
-                  "elapsedTimeMinutes": 15.42,
-                  "assetPair": "BTC-USD",
-                  "status": "In-Progress",
-                  "requestedSize": 1500,
-                  "executionSize": 1001,
-                  "executedTargetAmount": 850000,
-                  "tradeOrderId": "ABC2D",
-                  "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s"
-                },
-                {
-                  "account": "BTC.com",
-                  "startTime": 2018-08-21 14:23:52.186,
-                  "elapsedTimeMinutes": 35.24,
-                  "assetPair": "BCH-USD",
-                  "status": "Done",
-                  "requestedSize": 85000,
-                  "executionSize": 85000,
-                  "executedTargetAmount": 1400000,
-                  "tradeOrderId": "F6K3F",
-                  "walletAddress": "gf51qdp9q0lae7vz9vn4drw4e48kqkk44sccp348hf"
-                }
+              {
+                "account": "BTC.com",
+                "startTime": 2017-03-20T23:39:05.651638+00:00,
+                "elapsedTimeMinutes": 15.42,
+                "assetPair": "BTC-USD",
+                "actionType": "sell",
+                "status": "Done",
+                "requestedSize": 1500,
+                "requestedPrice": 6300,
+                "executionSize": 1001,
+                "executedTargetSize": 850000,
+                "tradeOrderId": "ABC2D",
+                "walletPlan": 
+                  [
+                    {
+                      "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s",
+                      "size": 750
+                    },
+                    {
+                      "walletAddress": "rj5qdp9q0lae7vz9vn4drw4e48kqkk44sccp34118s",
+                      "size": 251
+                    }
+                  ]
+              },
+              {
+                "account": "BTC.com",
+                "startTime": 2017-03-20T23:39:05.651638+00:00,
+                "elapsedTimeMinutes": 45.28,
+                "assetPair": "BCH-EUR",
+                "actionType": "sell",
+                "status": "Done",
+                "requestedSize": 1500,
+                "requestedPrice": 500,
+                "executionSize": 1001,
+                "executedTargetSize": 850000,
+                "tradeOrderId": "ABC2D",
+                "walletPlan": 
+                  [
+                    {
+                      "walletAddress": "0x301DF4cC1049982D8c289d9134Cd302678946Dd8",
+                      "size": 750
+                    },
+                    {
+                      "walletAddress": "0x258DH7aD8579982D8c289d9134Cd302678946Dd9",
+                      "size": 750
+                    }
+                  ]
+              }
             ]
 
 /listWithdrawals:
@@ -61,29 +85,25 @@ description: Smart-Trader reports APIs
         body:
           type: array
           items:
-            type: object
-            properties:
-              time: datetime
-              assetType: string
-              amount : number
-              account: string
-              userId: string
+            type: WithdrawalStatus
           example:
             [
-                {
-                  "time": 2018-10-10 10:05:13.384,
-                  "assetType": "USD",
-                  "amount": 1500000,
-                  "account": "BTC.com",
-                  "userId": "bob"
-                },
-                {
-                  "time": 2018-07-11 23:42:21.958,
-                  "assetType": "EUR",
-                  "amount": 86646000,
-                  "account": "BTC.com",
-                  "userId": "alice"
-                }
+              {
+                "account": "BTC.com",
+                "transactionId": "FDSGDFHT15DS",
+                "requestTime": 2017-03-20T23:39:05.651638+00:00,
+                "size": 1500,
+                "assetType": "USD",
+                "status": "In-Progress"
+              },
+              {
+                "account": "BTC.com",
+                "transactionId": "HDS54SDGDGD",
+                "requestTime": 2017-04-20T23:39:05.651638+00:00,
+                "size": 2750,
+                "assetType": "USD",
+                "status": "Done"
+              }
             ]
   
 
@@ -110,13 +130,12 @@ description: Smart-Trader reports APIs
                   "price": 8722.8,
                   "exchangeOrderId": "17869737638",
                   "status": "Finished",
-                  "orderTime": 2018-10-10 10:05:13.384,
+                  "orderTime": 2017-03-20T23:39:05.651638+00:00,
                   "assetPair": "BTC-USD",
                   "currencyFromAvailable": 3522.28410189,
                   "currencyToAvailable": 0.10772093,
                   "ask": 6501,
                   "bid": 6499,
-                  "userId": "ABC",
                   "tradeOrderId": "850"
                 },
                 { 
@@ -127,13 +146,12 @@ description: Smart-Trader reports APIs
                   "price": 8556.8,
                   "exchangeOrderId": "4165469586",
                   "status": "Finished",
-                  "orderTime": 2018-10-15 10:05:13.384,
+                  "orderTime": 2017-04-20T23:39:05.651638+00:00,
                   "assetPair": "BTC-USD",
                   "currencyFromAvailable": 3522.28410189,
                   "currencyToAvailable": 0.10772093,
                   "ask": 6501,
                   "bid": 6499,
-                  "userId": "ABC",
                   "tradeOrderId": "850"
                 },
                 { 
@@ -144,13 +162,12 @@ description: Smart-Trader reports APIs
                   "price": 6581.8,
                   "exchangeOrderId": "FSDFS6556D",
                   "status": "Finished",
-                  "orderTime": 2018-11-10 10:05:13.384,
+                  "orderTime": 2017-05-20T23:39:05.651638+00:00,
                   "assetPair": "BTC-USD",
                   "currencyFromAvailable": 3522.28410189,
                   "currencyToAvailable": 0.10772093,
                   "ask": 6501,
                   "bid": 6499,
-                  "userId": "ABC",
                   "tradeOrderId": "850"
                 }
               ]    

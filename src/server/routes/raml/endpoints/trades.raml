@@ -12,7 +12,7 @@ post:
               "size": 1001,
               "assetPair": "BTC-USD",
               "price": 6500,
-              "durationMin": 600
+              "durationMinutes": 600
             }
       responses:
         200:
@@ -20,11 +20,30 @@ post:
             type: object
             properties: 
               tradeOrderId: string
-              walletAddress: string
+              walletPlane: 
+                type: array
+                items:
+                  type: object
+                  properties:
+                    walletAddress: string
+                    size: number
             example:
               {
+                "actionType": "sell",
+                "size": 1001,
+                "assetPair": "BTC-USD",
                 "tradeOrderId": "ABC2D",
-                "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s"
+                "walletPlane": 
+                  [
+                    {
+                      "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s",
+                      "size": 750
+                    },
+                    {
+                      "walletAddress": "rj5qdp9q0lae7vz9vn4drw4e48kqkk44sccp34118s",
+                      "size": 251
+                    }
+                  ]
               }
 
         400:
@@ -32,7 +51,7 @@ post:
             type: object
             properties:
               assetType: string 
-              amount: number
+              size: number
               requestTime: datetime
               errorMessage: string
             example:
@@ -56,28 +75,56 @@ get:
       body:
         type: array
         items:
-          type: RequestedOrder
+          type: OrderStatus
         example:
           [
-              {
-                "actionType": "sell",
-                "size": 1001,
-                "assetPair": "BTC-USD",
-                "price": 6500,
-                "durationMin": 600,
-                "account": "BTC.com",
-                "userId": "bob",
-                "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s"
+            {
+              "account": "BTC.com",
+              "startTime": 2017-03-20T23:39:05.651638+00:00,
+              "elapsedTimeMinutes": 15.42,
+              "assetPair": "BTC-USD",
+              "actionType": "sell",
+              "status": "Done",
+              "requestedSize": 1500,
+              "requestedPrice": 6300,
+              "executionSize": 1001,
+              "executedTargetSize": 850000,
+              "tradeOrderId": "ABC2D",
+              "walletPlane": 
+                [
+                  {
+                    "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s",
+                    "size": 750
+                  },
+                  {
+                    "walletAddress": "rj5qdp9q0lae7vz9vn4drw4e48kqkk44sccp34118s",
+                    "size": 251
+                  }
+                ]
               },
               {
-                "actionType": "buy",
-                "size": 15000,
-                "assetPair": "BCH-EUR",
-                "price": 300,
-                "durationMin": 400,
                 "account": "BTC.com",
-                "userId": "alice",
-                "walletAddress": "0x301DF4cC1049982D8c289d9134Cd302678946Dd8"
+                "startTime": 2018-07-11 15:42:28.193,
+                "elapsedTimeMinutes": 45.28,
+                "assetPair": "BCH-EUR",
+                "actionType": "sell",
+                "status": "Done",
+                "requestedSize": 1500,
+                "requestedPrice": 500,
+                "executionSize": 1001,
+                "executedTargetSize": 850000,
+                "tradeOrderId": "ABC2D",
+                "walletPlane": 
+                  [
+                    {
+                      "walletAddress": "0x301DF4cC1049982D8c289d9134Cd302678946Dd8",
+                      "size": 750
+                    },
+                    {
+                      "walletAddress": "0x258DH7aD8579982D8c289d9134Cd302678946Dd9",
+                      "size": 750
+                    }
+                  ]
               }
           ]
 /{tradeOrderId}:
@@ -90,13 +137,25 @@ get:
             example:
               {
                 "account": "BTC.com",
-                "startTime": 2018-10-10 10:05:13.384,
+                "startTime": 2017-03-20T23:39:05.651638+00:00,
                 "elapsedTimeMinutes": 15.42,
                 "assetPair": "BTC-USD",
+                "actionType": "sell",
                 "status": "Done",
                 "requestedSize": 1500,
+                "requestedPrice": 6300,
                 "executionSize": 1001,
-                "executedTargetAmount": 850000,
+                "executedTargetSize": 850000,
                 "tradeOrderId": "ABC2D",
-                "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s"
+                "walletPlane": 
+                  [
+                    {
+                      "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s",
+                      "size": 750
+                    },
+                    {
+                      "walletAddress": "rj5qdp9q0lae7vz9vn4drw4e48kqkk44sccp34118s",
+                      "size": 251
+                    }
+                  ]
               }
