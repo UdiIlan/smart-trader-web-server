@@ -33,7 +33,7 @@ class RequestExecuter {
     }
     else if (message.topic === 'balances') {
       logger.info('BALANCE MESSAGE --->key = %s, value =  %s',message.key, message.value);
-      this.balance[message.key] = JSON.parse(message.value);
+      this.balances[message.key] = JSON.parse(message.value);
     }
     else {
       logger.error('unknown topic %s', message.topic);
