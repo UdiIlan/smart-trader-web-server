@@ -43,7 +43,7 @@ class RequestExecuter {
   async getUserDataFromCache() {
     var ans = null;
     await Object.keys(this.balance).forEach((key) => {
-      ans = this.balance[key];// TODO accumilate from each exchange
+      ans = this.balance[key];
     });
     return ans;
   }
