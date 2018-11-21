@@ -1,5 +1,28 @@
 #%RAML 1.0
 ---
+get:
+  description: List all accounts
+  responses:
+    200:
+      body: 
+        type: object
+        example:
+          {
+            "BTC.com": 
+              {
+                "name": "BTC.com",
+                "description": "BTC.com LTD"
+              },
+            "Miners Shop":
+              {
+                "name": "Miners Shop",
+                "description": "Bitmain online miners shop"
+              },
+            "Cloud Mining":
+              {
+              "name": "Cloud Mining"
+              }
+          }
 
 post:
   description: Create a new account
