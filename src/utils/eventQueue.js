@@ -77,7 +77,6 @@ class EventQueue {
   sendRequest(requestType, parameters) {
     parameters['eventTimeStamp'] = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
     let keyedMessage = new KeyedMessage(requestType, JSON.stringify(parameters));
-
     this.producer.send([{ topic: this.ordersTopic, partition: PARTITION, messages: [keyedMessage] }], function (err, result) {
       if (err) {
         logger.error(err);

@@ -99,24 +99,57 @@ router.get('/accounts/{accountName}/funds/withdrawals/{transactionId} ' , async 
 
 });// should be implemented.
 
+// router.post('/accounts/{accountName}/trades' , async (req, res, next) => {
+//   try{
+//     const requestsExecuter = getRequestsExecuter();
+//     requestsExecuter.validateAccount(req.params.accountName);
+//     req.body['userId'] = req.params.accountName;
+//     req.body['exchange'] = 'bitstamp';
+//     req.body['currencyPair'] = req.body.assetPair;
+//     const action = req.body.actionType;
+
+
+
+//     if (action == 'buy' || action == 'sell') {
+//       if (req.body.price) {
+//         getRequestsExecuter().sendOrder(req, res, orderTypes.timedMaking);
+//       }
+//       else{
+//         getRequestsExecuter().sendOrder(req, res, orderTypes.timedMaking);
+//       }
+//     }
+//     else
+//     {
+//       throw new Error(`unknown action type ${action}`);
+//     }
+//   }
+//   catch(err) {
+//     next(err);
+//   }
+// });
+
+
 router.post('/accounts/{accountName}/trades' , async (req, res, next) => {
   try{
     const requestsExecuter = getRequestsExecuter();
     requestsExecuter.validateAccount(req.params.accountName);
-    req.body['userId'] = req.params.accountName;
-    req.body['exchange'] = 'bitstamp';
-    req.body['amount'] = req.body.size; // temp
+    req.body['account'] = req.params.accountName;
+    // req.body['exchange'] = 'bitstamp';
     req.body['currencyPair'] = req.body.assetPair;
     const action = req.body.actionType;
 
 
-
     if (action == 'buy' || action == 'sell') {
       if (req.body.price) {
-        getRequestsExecuter().sendOrder(req, res, orderTypes.timedMaking);
+        if (!req.body['durationMinutes'] || req.body['durationMinutes'] === 0) {
+          getRequestsExecuter().sendOrder(req, res, orderTypes.ImmediateOrCancel);
+        }
+        else {
+          getRequestsExecuter().sendOrder(req, res, orderTypes.timedMaking);
+        }
       }
-      else{
-        getRequestsExecuter().sendOrder(req, res, orderTypes.timedMaking);
+      else {
+        getRequestsExecuter().sendOrder(req, res, orderTypes.timedTaking);
       }
     }
     else
@@ -184,9 +217,8 @@ router.get('/exchange/{exchange}/accountBalance', async (req, res, next) => {
 
 router.post('/sendOrder', async (req, res, next) => {
   try{
-    req.body['exchange'] = req.body.exchanges[0];
+    // req.body['exchange'] = req.body.exchanges[0];
     req.body['currencyPair'] = req.body.assetPair;
-    req.body['amount'] = req.body.size;
     const action = req.body.actionType;
 
     if (action == 'buy_making' || action == 'sell_making') {

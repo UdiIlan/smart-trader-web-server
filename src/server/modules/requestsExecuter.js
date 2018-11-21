@@ -7,6 +7,8 @@ import { orderTypes, orderTypesStr, Notifications } from 'smart-trader-common';
 import EventQueue from 'eventQueue';
 import getWebsocketWrapper from 'websocketWrapper';
 import { NotificationsString }  from  'smart-trader-common';
+import CondVar from 'condition-variable';
+import { unify } from 'raml-typesystem';
 
 class RequestExecuter {
   constructor(params) {
@@ -17,6 +19,8 @@ class RequestExecuter {
     this.balances = {};
     this.cachedTotalBalance = {};
     this.dirtyCache = false;
+    this.conditionVariables = {};
+    this.defaultExchanges = params.defaultExchanges;
 
     this.eventQueue = new EventQueue({ endpoint : `${params.kafkaZookeeperUrl}:${params.kafkaZookeeperPort}`,
       topics: [params.balancesTopic, params.notificationsTopic],
@@ -34,13 +38,23 @@ class RequestExecuter {
     }
     else if (message.topic === 'balances') {
       logger.info('BALANCE MESSAGE, key = %s, value =  %o',message.key, message.value);
+      const accountName = message.key;
       const incomingData = JSON.parse(message.value);
-      Object.keys(incomingData).forEach((userId) => {
+      Object.keys(incomingData).forEach((exchange) => {
 
-        if (!this.balances[userId]) {
-          this.balances[userId] = {};
+        if (!this.balances[accountName]) {
+          this.balances[accountName] = {};
         }
-        this.balances[userId][message.key] = incomingData[userId];
+        if (!this.balances[accountName][exchange]) {
+          this.balances[accountName][exchange] = {};
+        }
+
+        Object.keys(incomingData[exchange]).forEach((asset) => {
+          if (!this.balances[accountName][exchange][asset]) {
+            this.balances[accountName][exchange][asset] = {};
+          }
+          this.balances[accountName][exchange][asset]['confirmed'] = incomingData[exchange][asset];
+        });
       });
       this.dirtyCache = true;
     }
@@ -49,22 +63,23 @@ class RequestExecuter {
     }
   }
 
-  async getUserDataFromCache(userId) {
+  async getUserDataFromCache(account) {
 
-    if (this.dirtyCache) {
-      await Object.keys(this.balances[userId]).forEach((exchange) => {
-        Object.keys(this.balances[userId][exchange]).forEach((currency) => {
-          if (this.cachedTotalBalance[currency]) {
-            this.cachedTotalBalance[currency] += Number(this.balances[userId][exchange][currency]);
-          }
-          else{
-            this.cachedTotalBalance[currency] =  Number(this.balances[userId][exchange][currency]);
-          }
-        });
-        this.dirtyCache = false;
-      });
-    }
-    return this.cachedTotalBalance;
+    // if (this.dirtyCache) {
+    //   await Object.keys(this.balances[userId]).forEach((exchange) => {
+    //     Object.keys(this.balances[userId][exchange]).forEach((currency) => {
+    //       if (this.cachedTotalBalance[currency]) {
+    //         this.cachedTotalBalance[currency] += Number(this.balances[userId][exchange][currency]);
+    //       }
+    //       else{
+    //         this.cachedTotalBalance[currency] =  Number(this.balances[userId][exchange][currency]);
+    //       }
+    //     });
+    //     this.dirtyCache = false;
+    //   });
+    // }
+    // return this.cachedTotalBalance;
+    return this.balances[account]['Unified'];
   }
 
   createNewAccount(params) {
@@ -93,7 +108,7 @@ class RequestExecuter {
     const exchangeVal = req.body.exchange.toLowerCase();
     const keyVal = req.body.key;
     const secretVal = req.body.secret;
-    const clientIdVal = req.body.clientId;
+    const account = req.body.account;
 
     logger.debug('about to send login to %s request for key =  %s, request id = %s', exchangeVal, keyVal, requestIdVal);
     this.eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
@@ -107,7 +122,7 @@ class RequestExecuter {
         exchange: exchangeVal,
         key: keyVal,
         secret: secretVal,
-        clientId: clientIdVal,
+        account: account,
         requestId: requestIdVal,
         userId: this.defaultUserId
       });
@@ -131,7 +146,7 @@ class RequestExecuter {
       {
         exchange: exchangeVal,
         requestId: requestIdVal,
-        userId: this.defaultUserId,
+        account: this.defaultUserId,
       });
     logger.debug('getUserData request for key = %s, request id = %s was sent', exchangeVal, requestIdVal);
     res.end('getUserData request sent');
@@ -141,30 +156,44 @@ class RequestExecuter {
 
   sendOrder(req, res, orderType) {
     const requestIdVal = uuidv4();
-    const exchangeVal = req.body.exchange.toLowerCase();
+    const exchanges = req.body.exchanges ? req.body.exchanges : this.defaultExchanges;
 
-    logger.debug('about to send %s %s request to %s, request id = %s',orderTypesStr[orderType], req.body.actionType, exchangeVal, requestIdVal);
+    logger.debug('about to send %s %s request to %s, request id = %s',orderTypesStr[orderType], req.body.actionType, exchanges.join() , requestIdVal);
     this.eventQueue.sendNotification(Notifications.AboutToSendToEventQueue,
       {
-        exchange: exchangeVal,
+        exchanges: exchanges,
         requestId: requestIdVal,
       });
 
+
+    // ////////////////////////////////////////
+    // let condVar = new CondVar();
+    // this.conditionVariables[requestIdVal] = condVar.complete.bind(condVar);
+    // ///////////////////////////////////////////
     this.eventQueue.sendRequest(orderType,
       {
-        exchange: exchangeVal,
+        exchanges: exchanges,
         requestId: requestIdVal,
-        amount: req.body.amount,
+        size: req.body.size,
         price: req.body.price,
         currencyPair: req.body.currencyPair,
-        userId: (req.body.userId ? req.body.userId : req.defaultUserId) ,
+        account: (req.body.account ? req.body.account : req.defaultUserId) ,
         durationMinutes: req.body.durationMinutes,
         maxSizePerTransaction: req.body.maxOrderSize,
         actionType: req.body.actionType,
       });
-    logger.debug('%s %s request to %s, request id = %s was sent',orderTypesStr[orderType], req.body.actionType, exchangeVal, requestIdVal);
 
-    res.end(`${orderTypesStr[orderType]} ${req.body.actionType} request sent` );
+    // condVar.wait(30000,(err, result) => {
+    //   if (err) {
+    //     logger.error('FAILED: err=%s', err);
+    //   }
+    //   else {
+    //     logger.debug('%s %s request to %s, request id = %s was sent',orderTypesStr[orderType], req.body.actionType, exchanges.join(), requestIdVal);
+    //     res.end(`${orderTypesStr[orderType]} ${req.body.actionType} request sent` );
+    //   }
+    // });
+
+
   }
 }
 
