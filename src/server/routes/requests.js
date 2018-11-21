@@ -56,6 +56,18 @@ router.put('/accounts/{accountName}', async (req, res, next) => {
   }
 });
 
+router.delete('/accounts/{accountName}', async (req, res, next) => {
+  try {
+    const accountName = req.params.accountName;
+    const requestsExecuter = getRequestsExecuter();
+    requestsExecuter.deleteAccount(accountName);
+    res.json({ result: `Account '${accountName}' has been removed successfully` });
+  }
+  catch (err) {
+    next(err);
+  }
+});
+
 router.get('/accounts/{accountName}/balance', async (req, res, next) => {
   try {
     const requestsExecuter = getRequestsExecuter();

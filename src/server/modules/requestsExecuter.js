@@ -106,6 +106,15 @@ class RequestExecuter {
     this.accounts[params.name].description = params.description;
   }
 
+  deleteAccount(accountName) {
+    if (!this.accounts[accountName]) {
+      throw new Error(`account ${accountName} doesn't exist`);
+    }
+    else {
+      delete this.accounts[accountName];
+    }
+  }
+
   validateAccount(accountName) {
     if (!this.accounts[accountName]) {
       throw new Error(`account ${accountName} doesn't exist`);
