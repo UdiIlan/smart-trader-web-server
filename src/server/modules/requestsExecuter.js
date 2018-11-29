@@ -213,7 +213,13 @@ class RequestExecuter {
 
 
   }
+
+  registerOrder(message) {
+    this.eventQueue.sendToDB(message);
+  }
 }
+
+
 
 
 

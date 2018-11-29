@@ -1,6 +1,6 @@
 // import { returnMessages } from 'status';
 
-
+import uuidv4 from 'uuid/v4';
 import osprey from 'osprey';
 import getRequestsExecuter from 'requestsExecuter';
 
@@ -152,38 +152,6 @@ router.get('/accounts/{accountName}/funds/withdrawals/{transactionId} ', async (
 //   }
 // });
 
-
-router.post('/accounts/{accountName}/trades', async (req, res, next) => {
-  try {
-    const requestsExecuter = getRequestsExecuter();
-    requestsExecuter.validateAccount(req.params.accountName);
-    req.body['account'] = req.params.accountName;
-    // req.body['exchange'] = 'bitstamp';
-    req.body['currencyPair'] = req.body.assetPair;
-    const action = req.body.actionType;
-
-
-    if (action == 'buy' || action == 'sell') {
-      if (req.body.price) {
-        if (!req.body['durationMinutes'] || req.body['durationMinutes'] === 0) {
-          getRequestsExecuter().sendOrder(req, res, orderTypes.ImmediateOrCancel);
-        }
-        else {
-          getRequestsExecuter().sendOrder(req, res, orderTypes.timedMaking);
-        }
-      }
-      else {
-        getRequestsExecuter().sendOrder(req, res, orderTypes.timedTaking);
-      }
-    }
-    else {
-      throw new Error(`unknown action type ${action}`);
-    }
-  }
-  catch (err) {
-    next(err);
-  }
-});
 
 
 router.get('/accounts/{accountName}/trades', async (req, res, next) => {
