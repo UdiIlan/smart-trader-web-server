@@ -179,7 +179,7 @@ class RequestExecuter {
         currencyPair: req.body.currencyPair,
         account: (req.body.account ? req.body.account : req.defaultUserId) ,
         durationMinutes: req.body.durationMinutes,
-        maxSizePerTransaction: req.body.maxOrderSize,
+        maxOrderSize: req.body.maxOrderSize,
         actionType: req.body.actionType,
       });
 
