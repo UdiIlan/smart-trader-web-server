@@ -100,6 +100,18 @@ class EventQueue {
       }
     });
   }
+
+  sendToDB(message) {
+    message = Date.now();
+    this.producer.send([{ topic: 'dbWriter', partition: PARTITION, messages: [JSON.stringify(message)] }], function (err, result) {
+      if (err) {
+        logger.error(err);
+      }
+      else {
+        logger.debug('%o', result);
+      }
+    });
+  }
 }
 
 export default EventQueue;

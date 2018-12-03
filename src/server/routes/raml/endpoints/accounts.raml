@@ -1,5 +1,29 @@
 #%RAML 1.0
 ---
+get:
+  description: List all accounts
+  responses:
+    200:
+      body: 
+        type: object
+        example:
+          {
+            "BTC.com": 
+              {
+                "name": "BTC.com",
+                "description": "BTC.com LTD"
+              },
+            "Shop":
+              {
+                "name": "Shop",
+                "description": "Bitmain online miners shop"
+              },
+            "Bitdir":
+              {
+                "name": "Bitdir",
+                "description": "Cloud Mining"
+              }
+          }
 
 post:
   description: Create a new account
@@ -30,6 +54,17 @@ post:
       200:
         body: 
           type: AccountBalance
+
+  delete:
+    description: Delete an existing account
+    responses:
+      200:
+        body: 
+          type: object
+          example:
+            {
+              "result" : "Account 'BTC.com' has been removed successfully"
+            }
 
   /balance:
     get:
@@ -295,6 +330,38 @@ post:
                     "assetPair": "BTC-USD",
                     "actionType": "sell",
                     "status": "Done",
+                    "requestedSize": 1500,
+                    "requestedPrice": 6300,
+                    "executionSize": 1001,
+                    "executedTargetSize": 850000,
+                    "tradeOrderId": "ABC2D",
+                    "walletPlan": 
+                      [
+                        {
+                          "walletAddress": "bc1qdp9q0lae7vz9vn4drw4e48kqkk44sccp34008s",
+                          "size": 750
+                        },
+                        {
+                          "walletAddress": "rj5qdp9q0lae7vz9vn4drw4e48kqkk44sccp34118s",
+                          "size": 251
+                        }
+                      ]
+                  }
+      delete:
+        description: Cancel trade request
+        responses:
+          200:
+            body:
+              application/json:
+                type: OrderStatus
+                example:
+                  {
+                    "account": "BTC.com",
+                    "startTime": 2017-03-20T23:39:05.651638+00:00,
+                    "elapsedTimeMinutes": 15.42,
+                    "assetPair": "BTC-USD",
+                    "actionType": "sell",
+                    "status": "Canceled",
                     "requestedSize": 1500,
                     "requestedPrice": 6300,
                     "executionSize": 1001,

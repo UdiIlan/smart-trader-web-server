@@ -4,6 +4,7 @@ import osprey from 'osprey';
 const join = require('path').join;
 
 import requestRouter from './routes/requests';
+import accountRouter from './routes/accounts';
 import createError from 'http-errors';
 import getRequestsExecuter from './modules/requestsExecuter';
 
@@ -19,6 +20,7 @@ class Server {
           const app = express();
 
           app.use('/', middleware, requestRouter);
+          app.use('/', middleware, accountRouter);
 
 
           // catch 404 and forward to error handler
