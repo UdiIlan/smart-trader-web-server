@@ -3,6 +3,8 @@
    "defaultUserId" : "defaultUserId",
    "ordersTopic" : "orders",
    "notificationsTopic" : "notifications",
+   "queryTopic"         : "query" ,
+   "queryAnsTopic"      :  "queryAns",
    "balancesTopic" : "balances",
    "kafkaZookeeperPort" : "2181",
    "kafkaZookeeperUrl" : "localhost",

@@ -18,7 +18,6 @@ class Server {
       osprey.loadFile(join(__dirname + '/routes/raml/', 'api.raml'))
         .then(function (middleware) {
           const app = express();
-
           app.use('/', middleware, requestRouter);
           app.use('/', middleware, accountRouter);
 
@@ -30,7 +29,7 @@ class Server {
 
           // error handler
           app.use(function(err, req, res, next) {
-          // set locals, only providing error in development
+            // set locals, only providing error in development
 
             logger.error('error occurred: %o', err.message);
             res.locals.message = err.message;

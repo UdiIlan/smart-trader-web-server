@@ -15,7 +15,7 @@ class EventQueue {
   constructor(params, handleMessageCb) {
     //  order  producer initialization
     this.ordersTopic = params.ordersTopic;
-    // this.balancesTopic = params.balancesTopic;
+    this.queryTopic = params.queryTopic;
     this.notificationsTopic = params.notificationsTopic;
     this.endpoint = params.endpoint;
 
@@ -92,6 +92,20 @@ class EventQueue {
     parameters['sendingModule'] = Module.name;
     let keyedMessage = new KeyedMessage(notificationType, JSON.stringify(parameters));
     this.producer.send([{ topic: this.notificationsTopic, partition: PARTITION, messages: [keyedMessage] }], function (err, result) {
+      if (err) {
+        logger.error(err);
+      }
+      else {
+        logger.debug('%o', result);
+      }
+    });
+  }
+
+  sendQuery(queryType, parameters) {
+    parameters['eventTimeStamp'] = moment(Date.now()).format('YYYY-MM-DD HH:mm:ss');
+    parameters['sendingModule'] = Module.name;
+    let keyedMessage = new KeyedMessage(queryType, JSON.stringify(parameters));
+    this.producer.send([{ topic: this.queryTopic, partition: PARTITION, messages: [keyedMessage] }], function (err, result) {
       if (err) {
         logger.error(err);
       }
