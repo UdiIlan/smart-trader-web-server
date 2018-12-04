@@ -1,18 +1,30 @@
 import uuidv4 from 'uuid/v4';
 import osprey from 'osprey';
-import { Producer, Client } from 'kafka-node';
+import { Producer, Client, KafkaClient } from 'kafka-node';
 import logger from 'logger';
 
 const endpoint = '/accounts';
 const kafka_ip = 'localhost';
-const kafka_port = '2181';
+const kafka_port = '9092';
+const kafkaEndpoint = `${kafka_ip}:${kafka_port}`;
 const client = new Client(kafka_ip + ':' + kafka_port);
-const producer = new Producer(client);
+const ExchangePartitioner = (partitions, key) => {
+  if (!key) return 0;
+  const exchanges = [0];
+  let exchangeIndex = exchanges.indexOf(key);
+  exchangeIndex = exchangeIndex < 0 ? 0 : exchangeIndex;
+  const index = exchangeIndex % partitions.length;
+  return partitions[index];
+};
+const partitionerType = ExchangePartitioner ? 4 : 2;
+const producer = new Producer(new KafkaClient({ kafkaHost: kafkaEndpoint }), { partitionerType }, ExchangePartitioner);
+logger.debug('Preparing producer');
 
 let router = osprey.Router();
 let producer_ready = false;
 
 producer.on('ready', () => {
+  logger.debug('Producer ready');
   producer_ready = true;
 });
 
@@ -37,24 +49,25 @@ router.post(endpoint + '/{accountName}/trades', async (req, res, next) => {
   }
 
   let dbMessage = {
-    orderId: orderId,
+    tradeOrderId: orderId,
     account: account,
     action: action,
     assetPair: assetPair,
     duration: duration,
     size: size,
-    price: price
+    price: price,
+    timestamp: new Date()
   };
 
-  let depositMessage = {
+  /* let depositMessage = {
     orderId: orderId,
     account: account,
     asset: asset,
     size: size
-  };
+  }; */
 
   // TODO: write to Kafka both messages
-  logger.debug('Write order in DB - %o', dbMessage);
+  /* logger.debug('Write order in DB - %o', dbMessage);
   if(producer_ready) {
     producer.send([{
       topic: 'dbListener', partition: 0, messages: [JSON.stringify(dbMessage)],
@@ -69,10 +82,10 @@ router.post(endpoint + '/{accountName}/trades', async (req, res, next) => {
       }
     });
   }
-  logger.debug('Trigger deposit on order - %o', depositMessage);
+  logger.debug('Trigger deposit on order - %o', depositMessage);*/
   if(producer_ready) {
     producer.send([{
-      topic: 'requestDepositAddress', partition: 0, messages: [JSON.stringify(depositMessage)],
+      topic: 'sendOrderRequests', partition: 0, messages: [JSON.stringify(dbMessage)],
       attributes: 0
     }], (err, result) => {
       if(err) {
@@ -83,6 +96,9 @@ router.post(endpoint + '/{accountName}/trades', async (req, res, next) => {
         logger.debug('Message deposit finished: %o', result);
       }
     });
+  }
+  else {
+    logger.warn('Producer not ready on request');
   }
   // TODO: res - {
   //   "actionType": "sell",
