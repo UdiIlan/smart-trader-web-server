@@ -9,7 +9,7 @@ class WebSocketWrapper {
       ws.on('message', function incoming(message) {
         console.log('received: %s', message);
       });
-      ws.send('something');
+      ws.send('listening');
 
     });
   }

@@ -1,6 +1,5 @@
 // import { returnMessages } from 'status';
 
-import uuidv4 from 'uuid/v4';
 import osprey from 'osprey';
 import getRequestsExecuter from 'requestsExecuter';
 
@@ -167,7 +166,11 @@ router.get('/accounts/{accountName}/trades', async (req, res, next) => {
 
 router.post('/reports/listTrades', async (req, res, next) => {
   try {
-    res.end('success');
+    console.log('XXXX %o', req.headers);
+    // const requestsExecuter = getRequestsExecuter();
+    // requestsExecuter.getReportListTrades(req, res);
+
+    // res.end('success');
   }
   catch (err) {
     next(err);
