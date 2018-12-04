@@ -1,10 +1,10 @@
 {
-  "name": "smart-trade-node-project-template",
+  "name": "smart-trade-web-server",
   "version": "1.0.0",
   "description": "Node.js project-template for the smart-trader team.",
   "main": "lib/index.js",
   "scripts": {
-    "start": "nodemon --inspect=9229  ./src/index.js --exec babel-node",
+    "start": "nodemon --inspect=9230  ./src/index.js --exec babel-node",
     "build": "babel src -d lib",
     "run:prod": "node .",
     "test": "nyc --temp-directory coverage --reporter=html --reporter=text --exclude '**/*.spec.js' mocha --require babel-register  ./src/**/*.spec.js --require babel-core/register --coverage",
@@ -18,14 +18,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bitmain-israel/smart-trade-node-project-template.git"
+    "url": "git+https://github.com/bitmain-israel/smart-trade-web-server.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/bitmain-israel/smart-trade-node-project-template/issues"
+    "url": "https://github.com/bitmain-israel/smart-trade-web-server/issues"
   },
-  "homepage": "https://github.com/bitmain-israel/smart-trade-node-project-template#readme",
+  "homepage": "https://github.com/bitmain-israel/smart-trade-web-server#readme",
   "devDependencies": {
     "babel-cli": "^6.26.0",
     "babel-core": "^6.26.3",
