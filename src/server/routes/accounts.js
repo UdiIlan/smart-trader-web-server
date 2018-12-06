@@ -1,8 +1,10 @@
 import uuidv4 from 'uuid/v4';
 import osprey from 'osprey';
+import kafka from 'kafka-node'
 import { Producer, Client, KafkaClient } from 'kafka-node';
 import logger from 'logger';
-
+import config from 'config'
+import KafkaService from '../services/kafka-service'
 const endpoint = '/accounts';
 const kafka_ip = 'localhost';
 const kafka_port = '9092';
@@ -28,6 +30,7 @@ producer.on('ready', () => {
   producer_ready = true;
 });
 
+const afkaService = new KafkaService({config:config.kafka, logger,kafka })
 // Send an order to be executed on Smart-Trader. When a price isn't sent the order is executed as a market order.
 // Trigger deposit to exchanges, return deposit addresses
 router.post(endpoint + '/{accountName}/trades', async (req, res, next) => {
@@ -154,4 +157,12 @@ router.post(endpoint + '/{accountName}/trades', async (req, res, next) => {
   // }
 });
 
+router.post('/accounts/{accountName}/funds/withdrawals', async (req, res, next) => {
+  const {assetType, amount} = req.body;
+  const transactionId = uuidv4.v4()
+  const msg = {amount,currency:assetType,transactionId}
+  afkaService.send('withdrawalRead','withdrawalReq',msg)
+  afkaService.send('dbMessages','withdrawalsStatusChange',msg)
+  res.respond(transactionId)
+});
 export default router;

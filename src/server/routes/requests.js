@@ -95,18 +95,6 @@ router.get('/accounts/{accountName}/funds/withdrawals', async (req, res, next) =
 
 });// should be implemented
 
-router.post('/accounts/{accountName}/funds/withdrawals', async (req, res, next) => {
-
-  try {
-    const requestsExecuter = getRequestsExecuter();
-    requestsExecuter.validateAccount(req.params.accountName);
-    // const json =  await requestsExecuter.getUserDataFromCache();
-    // res.json(json);
-  }
-  catch (err) {
-    next(err);
-  }
-});// should be implemented
 
 router.get('/accounts/{accountName}/funds/withdrawals/{transactionId} ', async (req, res, next) => {
 
