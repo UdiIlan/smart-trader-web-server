@@ -3,7 +3,8 @@
 import osprey from 'osprey';
 import getRequestsExecuter from 'requestsExecuter';
 
-import { orderTypes, orderTypesStr, Notifications } from 'smart-trader-common';
+import { orderTypes, queryTypes, Notifications } from 'smart-trader-common';
+import { isLibrary } from 'raml-1-parser/dist/parser/artifacts/raml10parserapi';
 
 
 let router = osprey.Router();
@@ -166,9 +167,15 @@ router.get('/accounts/{accountName}/trades', async (req, res, next) => {
 
 router.post('/reports/listTrades', async (req, res, next) => {
   try {
-    console.log('XXXX %o', req.headers);
-    // const requestsExecuter = getRequestsExecuter();
-    // requestsExecuter.getReportListTrades(req, res);
+    let i = 0;
+    for (i = 0; i < req.rawHeaders.length; ++i) {
+      if (req.rawHeaders[i] === 'userid') {
+        req.body['userId'] = req.rawHeaders[i + 1];
+        break;
+      }
+    }
+    const requestsExecuter = getRequestsExecuter();
+    requestsExecuter.getReport(req, res, queryTypes.listTrades);
 
     // res.end('success');
   }
@@ -188,7 +195,10 @@ router.post('/reports/listWithdrawals', async (req, res, next) => {
 
 router.post('/reports/listOrders', async (req, res, next) => {
   try {
-    res.end('success');
+    const requestsExecuter = getRequestsExecuter();
+    requestsExecuter.getReport(req, res, queryTypes.listOrders);
+
+    // res.end('success');
   }
   catch (err) {
     next(err);

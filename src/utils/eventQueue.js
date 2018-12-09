@@ -122,7 +122,7 @@ class EventQueue {
         logger.error(err);
       }
       else {
-        logger.debug('%o', result);
+        // logger.debug('%o', result);
       }
     });
   }

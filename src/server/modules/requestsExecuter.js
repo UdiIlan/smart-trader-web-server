@@ -224,33 +224,35 @@ class RequestExecuter {
     this.eventQueue.sendToDB(message);
   }
 
-  getReportListTrades(req, res) {
+  // condVar.complete.bind(condVar);
+  // ///////////////////////////////////////////
 
+  getReport(req, res, queryType) {
+
+    for (let i = 0; i < req.rawHeaders.length; ++i) {
+      if (req.rawHeaders[i] === 'userid') {
+        req.body['userId'] = req.rawHeaders[i + 1];
+        break;
+      }
+    }
     req.body.requestId = uuidv4();
-    this.eventQueue.sendQuery(queryTypes.listTrades, req.body);
+    this.eventQueue.sendQuery(queryType, req.body);
 
     // ////////////////////////////////////
     this.conditionVariables[req.body.requestId] = new CondVar();
 
     this.conditionVariables[req.body.requestId].wait(100000, (err, result) => {
       if (err) {
-        logger.error('ZZZZZZZZZZZZZZZZZZZZZZZZZZ FAILED: err=%s', err);
+        logger.error('FAILED: err=%s', err);
         res.error(err);
       }
       else {
-        logger.info('ZZZZZZZZZZZZZZZZZZZZZZZZZZ SUCCESS %o', res);
-        res.json(result);
+        res.json(result.data);
         res.end();
       }
     });
-
-    // condVar.complete.bind(condVar);
-    // ///////////////////////////////////////////
   }
 }
-
-
-
 
 
 
